@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Breadcrumbs from '@/components/common/Breadcrumbs'
 import ProductCard from '@/components/product/ProductCard'
@@ -10,7 +10,7 @@ import { PRODUCT_CATEGORIES, EVENT_TYPES } from '@/lib/constants'
 import { getActiveProducts } from '@/lib/db'
 import type { Product, ProductCategoryId } from '@/lib/types'
 
-export default function ProductsPage() {
+function ProductsPageInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const selectedCategory = searchParams.get('category') || undefined
@@ -118,5 +118,17 @@ export default function ProductsPage() {
         </div>
       </section>
     </>
+  )
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-12 text-center text-text-dark/60">
+        טוען מוצרים…
+      </div>
+    }>
+      <ProductsPageInner />
+    </Suspense>
   )
 }
