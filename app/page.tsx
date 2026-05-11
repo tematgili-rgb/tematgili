@@ -28,16 +28,16 @@ export default function HomePage() {
         <div className="order-1">
           <HeroSection />
         </div>
-        <div className="order-3 md:order-2">
+        <div className="order-4">
           <EventTypesSection />
         </div>
-        <div className="order-4 md:order-3">
+        <div className="order-3">
           <ProductsShowcase />
         </div>
-        <div className="order-5 md:order-4">
+        <div className="order-5">
           <PackagesPreviewSection />
         </div>
-        <div className="order-2 md:order-5">
+        <div className="order-2">
           <GalleryStrip />
         </div>
         <div className="order-6">
