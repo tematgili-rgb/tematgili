@@ -19,7 +19,7 @@ export default function StickyInstagram() {
       rel="noopener noreferrer"
       onClick={() => trackEvent('click_instagram', { source: 'sticky' })}
       aria-label="Instagram"
-      className="fixed bottom-24 right-6 z-40 inline-flex items-center justify-center p-4 rounded-full shadow-2xl bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 text-white hover:scale-110 transition-all"
+      className="fixed bottom-24 right-6 z-40 inline-flex items-center justify-center p-4 rounded-full shadow-2xl bg-gradient-to-tr from-pink-400 to-purple-500 text-white hover:scale-110 transition-all"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
