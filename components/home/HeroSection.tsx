@@ -55,10 +55,10 @@ export default function HeroSection() {
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-16 items-center">
           <div className="text-center lg:text-right space-y-6 order-2 lg:order-1">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 border border-primary text-text-dark text-sm font-semibold shadow-sm animate-fade-in">
-              <span className="relative flex h-2 w-2">
+            <div className="mt-6 md:mt-0 inline-flex items-center gap-2.5 md:gap-2 px-4 md:px-3 py-2 md:py-1.5 rounded-full bg-white/80 border border-primary text-text-dark text-base md:text-sm font-semibold shadow-sm animate-fade-in">
+              <span className="relative flex h-2.5 w-2.5 md:h-2 md:w-2">
                 <span className="absolute inline-flex h-full w-full rounded-full bg-accent opacity-75 animate-ping" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 md:h-2 md:w-2 bg-accent" />
               </span>
               מיתוג אישי לכל אירוע ✨
             </div>
