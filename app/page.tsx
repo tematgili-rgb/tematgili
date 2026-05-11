@@ -24,14 +24,32 @@ export default function HomePage() {
   return (
     <>
       <ConfettiBalloons />
-      <HeroSection />
-      <EventTypesSection />
-      <ProductsShowcase />
-      <PackagesPreviewSection />
-      <GalleryStrip />
-      <TestimonialsSection />
-      <ContactFormSection />
-      <FinalCTASection />
+      <div className="flex flex-col">
+        <div className="order-1">
+          <HeroSection />
+        </div>
+        <div className="order-3 md:order-2">
+          <EventTypesSection />
+        </div>
+        <div className="order-4 md:order-3">
+          <ProductsShowcase />
+        </div>
+        <div className="order-5 md:order-4">
+          <PackagesPreviewSection />
+        </div>
+        <div className="order-2 md:order-5">
+          <GalleryStrip />
+        </div>
+        <div className="order-6">
+          <TestimonialsSection />
+        </div>
+        <div className="order-7">
+          <ContactFormSection />
+        </div>
+        <div className="order-8">
+          <FinalCTASection />
+        </div>
+      </div>
     </>
   )
 }
