@@ -1,6 +1,18 @@
 import Link from 'next/link'
+import { BookOpen, Candy, Popcorn, PartyPopper, Gift, Milk, Megaphone } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { PRODUCT_CATEGORIES } from '@/lib/constants'
 import { getActiveProducts } from '@/lib/db'
+
+const ICON_MAP: Record<string, LucideIcon> = {
+  'coloring-book': BookOpen,
+  'snack-wrap':    Candy,
+  'popcorn-box':   Popcorn,
+  'party-hat':     PartyPopper,
+  'gift-box':      Gift,
+  'bottle-label':  Milk,
+  'backdrop-sign': Megaphone,
+}
 
 export default async function ProductsShowcase() {
   let hasProducts = false
@@ -29,9 +41,14 @@ export default async function ProductsShowcase() {
               key={cat.id}
               className={`rounded-2xl border-2 p-6 flex flex-col items-center text-center gap-4 shadow-sm hover:shadow-md transition-shadow ${cat.color}`}
             >
-              <span className="text-5xl md:text-6xl" aria-hidden>
-                {cat.icon}
-              </span>
+              {(() => {
+                const Icon = ICON_MAP[cat.id] ?? Gift
+                return (
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-primary-soft flex items-center justify-center border-2 border-primary/40">
+                    <Icon className="w-8 h-8 md:w-10 md:h-10 text-primary" strokeWidth={1.6} />
+                  </div>
+                )
+              })()}
               <h3 className="font-bold text-text-dark text-lg">{cat.name}</h3>
               <Link
                 href={`/products?category=${cat.id}`}
