@@ -39,12 +39,12 @@ export default async function ProductsShowcase() {
           {PRODUCT_CATEGORIES.map((cat) => (
             <div
               key={cat.id}
-              className={`rounded-2xl border-2 p-6 flex flex-col items-center text-center gap-4 shadow-sm hover:shadow-md transition-shadow ${cat.color}`}
+              className="rounded-2xl border-2 p-6 flex flex-col items-center text-center gap-4 shadow-sm hover:shadow-md transition-shadow bg-white border-primary-soft"
             >
               {(() => {
                 const Icon = ICON_MAP[cat.id] ?? Gift
                 return (
-                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-primary-soft flex items-center justify-center border-2 border-primary/40">
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-primary-soft flex items-center justify-center border-2 border-primary-soft">
                     <Icon className="w-8 h-8 md:w-10 md:h-10 text-primary" strokeWidth={1.6} />
                   </div>
                 )
