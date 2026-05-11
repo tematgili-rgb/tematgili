@@ -45,7 +45,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
-  const { user, loading, isAdmin } = useAuth()
+  const { user, loading, isAdmin, isDemo } = useAuth()
 
   if (loading) {
     return (
@@ -69,6 +69,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-screen bg-bg-soft" dir="rtl">
+      {isDemo && (
+        <div className="bg-yellow-100 border-b-2 border-yellow-400 text-yellow-900 text-sm py-2 px-4 text-center font-medium">
+          מצב Demo (לוקאלי בלבד) — Firebase לא מחובר. שינויים לא יישמרו.
+        </div>
+      )}
       <header className="bg-white border-b border-primary-soft sticky top-0 z-40">
         <div className="px-3 sm:px-4 py-3 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 sm:gap-4 min-w-0">

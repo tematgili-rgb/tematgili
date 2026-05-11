@@ -38,12 +38,6 @@ export default function CookieConsent() {
     setVisible(false)
   }
 
-  const decline = () => {
-    try { localStorage.setItem(STORAGE_KEY, 'declined') } catch {}
-    setCookie(STORAGE_KEY, 'declined', 365)
-    setVisible(false)
-  }
-
   return (
     <div className="fixed bottom-0 right-0 left-0 z-40 bg-primary-soft/90 backdrop-blur border-t-2 border-primary shadow-2xl p-4">
       <div className="container mx-auto flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -56,12 +50,9 @@ export default function CookieConsent() {
             </Link>
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
-          <Button onClick={accept} className="bg-accent text-white hover:bg-accent/90">
-            מאשרת הכל ✨
-          </Button>
-          <Button variant="outline" onClick={decline} className="border-primary">
-            רק נחוצות
+        <div className="flex justify-center w-full sm:w-auto sm:justify-start">
+          <Button onClick={accept} className="w-full bg-accent text-white hover:bg-accent/90">
+            מאשר/ת ✨
           </Button>
         </div>
       </div>

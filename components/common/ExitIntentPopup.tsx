@@ -59,7 +59,7 @@ export default function ExitIntentPopup() {
       if (e.clientY <= 0) triggerOpen()
     }
 
-    const timer = window.setTimeout(triggerOpen, 60_000)
+    const timer = window.setTimeout(triggerOpen, 7000)
     document.addEventListener('mouseout', onMouseOut)
 
     return () => {

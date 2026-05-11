@@ -57,11 +57,12 @@ export interface Review {
 
 export interface SiteImage {
   id: string
-  category: 'logo' | 'hero_carousel' | 'gallery' | 'about'
+  category: 'logo' | 'hero_carousel' | 'gallery' | 'about' | 'packages'
   name: string
   imageUrl: string
   isActive: boolean
   sortOrder: number
+  tags?: string[]
   createdAt: Timestamp | Date
 }
 

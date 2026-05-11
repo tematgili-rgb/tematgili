@@ -1,6 +1,6 @@
 export const PRODUCT_CATEGORIES = [
   { id: 'coloring-book', name: 'חוברות צביעה',  icon: '📕', color: 'bg-primary-soft border-primary' },
-  { id: 'snack-wrap',    name: 'עטיפות שוקולד',  icon: '🍫', color: 'bg-cream border-twine' },
+  { id: 'snack-wrap',    name: 'חטיפים',  icon: '🍫', color: 'bg-cream border-twine' },
   { id: 'popcorn-box',   name: 'קופסאות פופקורן', icon: '🍿', color: 'bg-primary-soft border-accent' },
   { id: 'party-hat',     name: 'כובעי מסיבה',     icon: '🎉', color: 'bg-cream border-primary' },
   { id: 'gift-box',      name: 'קופסאות מתנה',    icon: '🎁', color: 'bg-primary-soft border-twine' },

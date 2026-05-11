@@ -15,7 +15,15 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import ProtectedRoute from '@/components/admin/ProtectedRoute'
 import ImageDropzone from '@/components/admin/ImageDropzone'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog'
 import { getAllDocuments, createDocument, updateDocument, deleteDocument } from '@/lib/db'
+import { PRODUCT_CATEGORIES } from '@/lib/constants'
 import type { SiteImage } from '@/lib/types'
 
 const categoryLabels: Record<SiteImage['category'], string> = {
@@ -23,9 +31,81 @@ const categoryLabels: Record<SiteImage['category'], string> = {
   hero_carousel: 'קרוסלת דף הבית',
   gallery: 'גלריית עבודות',
   about: 'אודות',
+  packages: 'חבילות',
 }
 
-const CATEGORIES: SiteImage['category'][] = ['logo', 'hero_carousel', 'gallery', 'about']
+const CATEGORIES: SiteImage['category'][] = ['logo', 'hero_carousel', 'gallery', 'about', 'packages']
+
+const STATIC_GALLERY: SiteImage[] = Array.from({ length: 26 }, (_, i) => {
+  const num = String(i + 1).padStart(2, '0')
+  return {
+    id: `static-gallery-${num}`,
+    category: 'gallery',
+    name: `עבודה ${i + 1}`,
+    imageUrl: `/gallery/gallery-${num}.jpg`,
+    isActive: true,
+    sortOrder: i,
+    createdAt: new Date(),
+  } as SiteImage
+})
+
+const STATIC_LOGO: SiteImage[] = [
+  {
+    id: 'static-logo-main',
+    category: 'logo',
+    name: 'לוגו ראשי',
+    imageUrl: '/logo.png',
+    isActive: true,
+    sortOrder: 0,
+    createdAt: new Date(),
+  } as SiteImage,
+]
+
+const CAROUSEL_FILES = [
+  { name: 'חוברות צביעה',   file: 'coloring-book.png' },
+  { name: 'עטיפות שוקולד',  file: 'chocolate.png' },
+  { name: 'חטיפים ממותגים', file: 'snack.png' },
+  { name: 'קופסאות פופקורן', file: 'packaging.png' },
+  { name: 'חבילות מוכנות',  file: 'bundle.png' },
+  { name: 'צנצנות ממותגות', file: 'jar.png' },
+  { name: 'בועות סבון',     file: 'bubbles.png' },
+]
+
+const STATIC_CAROUSEL: SiteImage[] = CAROUSEL_FILES.map((c, i) => ({
+  id: `static-carousel-${c.file.replace(/\..+$/, '')}`,
+  category: 'hero_carousel' as const,
+  name: c.name,
+  imageUrl: `/products/${c.file}`,
+  isActive: true,
+  sortOrder: i,
+  createdAt: new Date(),
+} as SiteImage))
+
+const ABOUT_URLS = [
+  { name: 'חגיגת יום הולדת מעוצבת', url: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&q=80' },
+  { name: 'עיצוב מיתוג מוצרים',     url: 'https://images.unsplash.com/photo-1607344645866-009c320b63e0?w=800&q=80' },
+]
+
+const STATIC_ABOUT: SiteImage[] = ABOUT_URLS.map((a, i) => ({
+  id: `static-about-${i + 1}`,
+  category: 'about' as const,
+  name: a.name,
+  imageUrl: a.url,
+  isActive: true,
+  sortOrder: i,
+  createdAt: new Date(),
+} as SiteImage))
+
+const STATIC_PACKAGES: SiteImage[] = []
+
+function staticFor(cat: SiteImage['category']): SiteImage[] {
+  if (cat === 'gallery') return STATIC_GALLERY
+  if (cat === 'logo') return STATIC_LOGO
+  if (cat === 'hero_carousel') return STATIC_CAROUSEL
+  if (cat === 'about') return STATIC_ABOUT
+  if (cat === 'packages') return STATIC_PACKAGES
+  return []
+}
 
 const SEED_IMAGES: Omit<SiteImage, 'id' | 'createdAt'>[] = [
   { category: 'logo', name: 'לוגו ראשי', imageUrl: '/assets/logo.png', isActive: true, sortOrder: 1 },
@@ -51,6 +131,50 @@ function Images() {
   const [newName, setNewName] = useState('')
   const [newUrl, setNewUrl] = useState('')
   const [adding, setAdding] = useState(false)
+  const [openImage, setOpenImage] = useState<SiteImage | null>(null)
+  const [pendingTags, setPendingTags] = useState<string[]>([])
+  const [savingTags, setSavingTags] = useState(false)
+  const [tagMessage, setTagMessage] = useState<string | null>(null)
+
+  const togglePill = (id: string) => {
+    setPendingTags((prev) =>
+      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]
+    )
+  }
+
+  const openCard = (img: SiteImage) => {
+    setTagMessage(null)
+    setOpenImage(img)
+    setPendingTags(img.tags ?? [])
+  }
+
+  const closeDialog = () => {
+    setOpenImage(null)
+    setPendingTags([])
+    setTagMessage(null)
+  }
+
+  const saveTags = async () => {
+    if (!openImage) return
+    if (openImage.id.startsWith('static-')) {
+      setTagMessage('תמונה סטטית — תיוג יישמר רק אחרי חיבור Firebase')
+      setTimeout(() => closeDialog(), 1500)
+      return
+    }
+    setSavingTags(true)
+    try {
+      await updateDocument<SiteImage>('siteImages', openImage.id, { tags: pendingTags })
+      setImages((prev) =>
+        prev.map((i) => (i.id === openImage.id ? { ...i, tags: pendingTags } : i))
+      )
+      closeDialog()
+    } catch (e) {
+      console.error(e)
+      setTagMessage('שגיאה בשמירת תיוגים')
+    } finally {
+      setSavingTags(false)
+    }
+  }
 
   useEffect(() => {
     load()
@@ -96,6 +220,7 @@ function Images() {
   }
 
   const handleToggle = async (img: SiteImage) => {
+    if (img.id.startsWith('static-')) return
     try {
       await updateDocument<SiteImage>('siteImages', img.id, { isActive: !img.isActive })
       setImages((prev) =>
@@ -107,6 +232,7 @@ function Images() {
   }
 
   const handleDelete = async (img: SiteImage) => {
+    if (img.id.startsWith('static-')) return
     if (!confirm('למחוק תמונה זו?')) return
     try {
       await deleteDocument('siteImages', img.id)
@@ -147,7 +273,8 @@ function Images() {
     }
   }
 
-  const filtered = images.filter((i) => i.category === activeCategory)
+  const firestoreForCategory = images.filter((i) => i.category === activeCategory)
+  const filtered = [...firestoreForCategory, ...staticFor(activeCategory)]
 
   return (
     <div dir="rtl">
@@ -169,7 +296,8 @@ function Images() {
       {/* Tabs */}
       <div className="flex gap-2 flex-wrap mb-6">
         {CATEGORIES.map((cat) => {
-          const count = images.filter((i) => i.category === cat).length
+          const firestoreCount = images.filter((i) => i.category === cat).length
+          const count = firestoreCount + staticFor(cat).length
           const active = activeCategory === cat
           return (
             <button
@@ -226,13 +354,21 @@ function Images() {
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {filtered.map((img) => (
+          {filtered.map((img) => {
+            const isStatic = img.id.startsWith('static-')
+            return (
             <div
               key={img.id}
-              className={`bg-white rounded-2xl shadow-lg overflow-hidden ${
+              onClick={() => openCard(img)}
+              className={`bg-white rounded-2xl shadow-lg overflow-hidden relative cursor-pointer hover:ring-2 hover:ring-primary transition ${
                 img.isActive ? '' : 'opacity-50'
               }`}
             >
+              {isStatic && (
+                <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full absolute top-2 right-2 z-10">
+                  סטטי
+                </span>
+              )}
               <div className="aspect-square bg-primary-soft/20">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -243,11 +379,15 @@ function Images() {
               </div>
               <div className="p-3 space-y-2">
                 <p className="font-medium text-sm text-text-dark truncate">{img.name}</p>
-                <div className="flex gap-1">
+                {img.tags?.length ? (
+                  <p className="text-xs text-gray-500">{img.tags.length} תיוגים</p>
+                ) : null}
+                <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
                   <Button
                     size="icon"
                     variant="outline"
-                    className="flex-1"
+                    className={`flex-1 ${isStatic ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    disabled={isStatic}
                     onClick={() => handleToggle(img)}
                   >
                     {img.isActive ? (
@@ -259,7 +399,10 @@ function Images() {
                   <Button
                     size="icon"
                     variant="outline"
-                    className="flex-1 border-accent text-accent hover:bg-accent hover:text-white"
+                    className={`flex-1 border-accent text-accent hover:bg-accent hover:text-white ${
+                      isStatic ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                    disabled={isStatic}
                     onClick={() => handleDelete(img)}
                   >
                     <Trash2 className="w-4 h-4" />
@@ -267,9 +410,67 @@ function Images() {
                 </div>
               </div>
             </div>
-          ))}
+            )
+          })}
         </div>
       )}
+
+      <Dialog open={!!openImage} onOpenChange={(o) => { if (!o) closeDialog() }}>
+        <DialogContent className="max-w-2xl" dir="rtl">
+          <DialogHeader>
+            <DialogTitle>{openImage?.name ?? 'תמונה'}</DialogTitle>
+            <DialogDescription>תייג קטגוריה</DialogDescription>
+          </DialogHeader>
+          {openImage && (
+            <div className="space-y-5">
+              <div className="aspect-square max-w-md mx-auto bg-primary-soft/20 rounded-2xl overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={openImage.imageUrl}
+                  alt={openImage.name}
+                  className="w-full h-full object-contain p-2"
+                />
+              </div>
+              <div>
+                <h4 className="font-bold text-text-dark mb-3">תייג קטגוריה</h4>
+                <div className="flex flex-wrap gap-2">
+                  {PRODUCT_CATEGORIES.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => togglePill(c.id)}
+                      className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 text-sm transition ${
+                        pendingTags.includes(c.id)
+                          ? 'bg-primary text-text-dark border-primary'
+                          : 'bg-white text-text-dark border-primary-soft hover:border-primary'
+                      }`}
+                    >
+                      <span>{c.icon}</span>
+                      <span>{c.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {tagMessage && (
+                <p className="text-sm text-accent">{tagMessage}</p>
+              )}
+              <div className="flex gap-2 justify-end pt-2">
+                <Button variant="outline" onClick={closeDialog} disabled={savingTags}>
+                  ביטול
+                </Button>
+                <Button
+                  className="bg-accent text-white hover:bg-accent/90"
+                  onClick={saveTags}
+                  disabled={savingTags}
+                >
+                  {savingTags && <Loader2 className="w-4 h-4 ml-2 animate-spin" />}
+                  שמור
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
