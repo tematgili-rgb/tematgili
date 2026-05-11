@@ -115,7 +115,13 @@ export default function Header() {
           />
           <aside className="absolute top-0 right-0 h-full w-72 bg-white shadow-xl p-6 flex flex-col gap-4">
             <div className="flex items-center justify-between">
-              <span className="font-display text-xl font-bold">תמתגילי</span>
+              <Image
+                src="/logo.png"
+                alt="תמתגילי"
+                width={918}
+                height={314}
+                className="h-10 w-auto"
+              />
               <button
                 type="button"
                 aria-label="סגור תפריט"
