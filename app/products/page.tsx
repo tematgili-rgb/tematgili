@@ -6,7 +6,7 @@ import Breadcrumbs from '@/components/common/Breadcrumbs'
 import ProductCard from '@/components/product/ProductCard'
 import ProductFiltersBar from '@/components/product/ProductFiltersBar'
 import LeadFormInline from '@/components/forms/LeadFormInline'
-import { PRODUCT_CATEGORIES, EVENT_TYPES } from '@/lib/constants'
+import { PRODUCT_CATEGORIES } from '@/lib/constants'
 import { getActiveProducts } from '@/lib/db'
 import type { Product, ProductCategoryId } from '@/lib/types'
 
@@ -14,7 +14,6 @@ function ProductsPageInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const selectedCategory = searchParams.get('category') || undefined
-  const selectedEvent = searchParams.get('event') || undefined
 
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -40,10 +39,9 @@ function ProductsPageInner() {
   const filtered = useMemo(() => {
     return products.filter((p) => {
       if (selectedCategory && p.category !== (selectedCategory as ProductCategoryId)) return false
-      if (selectedEvent && !(p.occasions || []).includes(selectedEvent)) return false
       return true
     })
-  }, [products, selectedCategory, selectedEvent])
+  }, [products, selectedCategory])
 
   const updateParam = (key: string, value: string | undefined) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -67,14 +65,11 @@ function ProductsPageInner() {
           </p>
         </div>
 
-        <div className="mb-8">
+        <div className="mb-8 md:hidden">
           <ProductFiltersBar
             categories={PRODUCT_CATEGORIES.map((c) => ({ id: c.id, name: c.name, icon: c.icon }))}
-            events={EVENT_TYPES.map((e) => ({ id: e.id, name: e.name, emoji: e.emoji }))}
             selectedCategory={selectedCategory}
-            selectedEvent={selectedEvent}
             onCategoryChange={(v) => updateParam('category', v)}
-            onEventChange={(v) => updateParam('event', v)}
           />
         </div>
 
