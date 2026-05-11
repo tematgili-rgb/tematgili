@@ -5,7 +5,7 @@ export const PRODUCT_CATEGORIES = [
   { id: 'party-hat',     name: 'כובעי מסיבה',     icon: '🎉', color: 'bg-cream border-primary' },
   { id: 'gift-box',      name: 'קופסאות מתנה',    icon: '🎁', color: 'bg-primary-soft border-twine' },
   { id: 'bottle-label',  name: 'תוויות לבקבוקים', icon: '🍼', color: 'bg-cream border-accent' },
-  { id: 'backdrop-sign', name: 'שלטי קישוט',      icon: '🪧', color: 'bg-primary-soft border-primary' },
+  { id: 'backdrop-sign', name: 'שלטים ותפאורה',      icon: '🪧', color: 'bg-primary-soft border-primary' },
 ] as const
 
 export const EVENT_TYPES = [

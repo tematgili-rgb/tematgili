@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { BookOpen, Candy, Popcorn, PartyPopper, Gift, Milk, Megaphone } from 'lucide-react'
+import { BookOpen, Candy, Popcorn, PartyPopper, Gift, Milk, Flag } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { PRODUCT_CATEGORIES } from '@/lib/constants'
 import { getActiveProducts } from '@/lib/db'
@@ -11,7 +11,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   'party-hat':     PartyPopper,
   'gift-box':      Gift,
   'bottle-label':  Milk,
-  'backdrop-sign': Megaphone,
+  'backdrop-sign': Flag,
 }
 
 export default async function ProductsShowcase() {
