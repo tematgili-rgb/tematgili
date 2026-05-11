@@ -5,6 +5,7 @@ import './globals.css'
 import ConditionalHeader from '@/components/layout/ConditionalHeader'
 import ConditionalFooter from '@/components/layout/ConditionalFooter'
 import StickyWhatsApp from '@/components/common/StickyWhatsApp'
+import StickyInstagram from '@/components/common/StickyInstagram'
 import AccessibilityWidget from '@/components/common/AccessibilityWidget'
 import CookieConsent from '@/components/common/CookieConsent'
 import ExitIntentPopup from '@/components/common/ExitIntentPopup'
@@ -90,6 +91,7 @@ export default function RootLayout({
         </main>
         <ConditionalFooter />
         <StickyWhatsApp />
+        <StickyInstagram />
         <AccessibilityWidget />
         <CookieConsent />
         <ExitIntentPopup />

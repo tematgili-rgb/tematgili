@@ -13,7 +13,7 @@ export default function AboutPage() {
   return (
     <div className="container mx-auto px-4 py-12 md:py-16">
       <header className="text-center mb-12">
-        <h1 className="text-3xl md:text-5xl font-bold font-display text-text-dark mb-3">אודות תמתגילי</h1>
+        <h1 className="text-3xl md:text-5xl font-bold text-text-dark mb-3">אודות תמתגילי</h1>
         <p className="text-text-dark/70 max-w-2xl mx-auto text-lg">
           מיתוג אישי, מתוק ומדויק - לכל אירוע ולכל מתנה.
         </p>
@@ -27,8 +27,8 @@ export default function AboutPage() {
             מתוכנן בקפידה, מודפס באיכות גבוהה ומותאם בדיוק עבורכם.
           </p>
           <p className="text-text-dark/80 leading-relaxed">
-            התחלנו עם רעיון פשוט: שכל ילדה תוכל לקבל את המתנה שתמיד חלמה עליה, ושכל אמא תוכל להפיק
-            יום הולדת מושלם בלי כאב ראש. היום אנחנו מלוות מאות לקוחות בשנה - מימי הולדת קטנים ועד
+            התחלנו עם רעיון פשוט: שכל ילד וילדה יוכלו לקבל את המתנה שתמיד חלמו עליה, ושכל הורה יוכל להפיק
+            יום הולדת מושלם בלי כאב ראש. היום אנחנו מלווים מאות לקוחות בשנה - מימי הולדת קטנים ועד
             אירועים גדולים.
           </p>
         </div>
@@ -57,10 +57,10 @@ export default function AboutPage() {
           <h2 className="text-2xl md:text-3xl font-bold mb-4 text-text-dark">המשימה שלנו</h2>
           <p className="text-text-dark/80 leading-relaxed mb-3">
             להפוך כל פריט קטן - חוברת צביעה, עטיפת שוקולד, קופסת פופקורן - למשהו ייחודי שמספר את
-            הסיפור שלכם. אנחנו מאמינות שהפרטים הקטנים הם מה שעושה את ההבדל.
+            הסיפור שלכם. אנחנו מאמינים שהפרטים הקטנים הם מה שעושה את ההבדל.
           </p>
           <p className="text-text-dark/80 leading-relaxed">
-            מהשרטוט הראשון ועד למשלוח, אנחנו ליד הלקוחות שלנו - מקשיבות, מייעצות ומלוות. כי הצלחה של
+            מהשרטוט הראשון ועד למשלוח, אנחנו ליד הלקוחות שלנו - מקשיבים, מייעצים ומלווים. כי הצלחה של
             אירוע היא גם הצלחה שלנו.
           </p>
         </div>

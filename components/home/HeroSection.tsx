@@ -95,7 +95,7 @@ export default function HeroSection() {
                 <div className="flex text-yellow-400 text-base leading-none" aria-label="דירוג 5 מתוך 5">
                   <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
                 </div>
-                <span>+200 לקוחות מרוצים</span>
+                <span>אלפי לקוחות מרוצים</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse" aria-hidden="true" />

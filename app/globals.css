@@ -9,11 +9,11 @@ html {
 body {
   background: #FFFAF7;
   color: #1F1F2E;
-  font-family: var(--font-heebo), Heebo, Rubik, system-ui, sans-serif;
+  font-family: var(--font-heebo), Heebo, system-ui, sans-serif;
 }
 
 h1.font-display, h2 {
-  font-family: var(--font-display), Heebo, system-ui, sans-serif;
+  font-family: var(--font-display), var(--font-heebo), Heebo, system-ui, sans-serif;
   letter-spacing: 0.01em;
 }
 

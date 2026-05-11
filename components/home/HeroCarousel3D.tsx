@@ -7,7 +7,7 @@ const ITEMS = [
   { name: 'חוברות צביעה',   imageUrl: '/products/coloring-book.png', slug: 'coloring-book' },
   { name: 'עטיפות שוקולד',   imageUrl: '/products/chocolate.png',    slug: 'snack-wrap' },
   { name: 'חטיפים ממותגים',  imageUrl: '/products/snack.png',        slug: 'snack-wrap' },
-  { name: 'אריזות מתנה',     imageUrl: '/products/packaging.png',    slug: 'gift-box' },
+  { name: 'קופסאות פופקורן',  imageUrl: '/products/packaging.png',    slug: 'popcorn-box' },
   { name: 'חבילות מוכנות',   imageUrl: '/products/bundle.png',       slug: 'gift-box' },
   { name: 'צנצנות ממותגות',  imageUrl: '/products/jar.png',          slug: 'bottle-label' },
   { name: 'בועות סבון',      imageUrl: '/products/bubbles.png',      slug: 'party-hat' },

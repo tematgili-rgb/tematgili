@@ -49,7 +49,7 @@ export default async function TestimonialsSection() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-black text-text-dark">
-            מה אומרות הלקוחות
+            מה אומרים עלינו
           </h2>
           <p className="text-text-dark/70 mt-3 text-lg">
             סיפורים של אירועים שהפכו לבלתי נשכחים

@@ -2,6 +2,7 @@ const HTTPS_DOMAINS = [
   'tematgili.co.il',
   'wa.me',
   'whatsapp.com',
+  'instagram.com',
   'firebasestorage.googleapis.com',
   'storage.googleapis.com',
   'lh3.googleusercontent.com',

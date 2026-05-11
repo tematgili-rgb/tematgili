@@ -18,8 +18,8 @@ const config: Config = {
         'bg-soft': '#FFFAF7',
       },
       fontFamily: {
-        sans: ['var(--font-heebo)', 'Heebo', 'Rubik', 'system-ui', 'sans-serif'],
-        display: ['var(--font-display)', 'Heebo', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-heebo)', 'Heebo', 'system-ui', 'sans-serif'],
+        display: ['var(--font-display)', 'var(--font-heebo)', 'Heebo', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         '2xl': '1rem',
