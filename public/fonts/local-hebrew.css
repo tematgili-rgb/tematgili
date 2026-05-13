@@ -134,3 +134,231 @@
   font-weight: 600;
   font-display: swap;
 }
+
+@font-face {
+  font-family: 'Ahuva';
+  src: url('/fonts/local/ahuva-bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Akiva';
+  src: url('/fonts/local/akiva-regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Akiva';
+  src: url('/fonts/local/akiva-bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Alim';
+  src: url('/fonts/local/alim-regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Alim';
+  src: url('/fonts/local/alim-bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'BN Begilophim';
+  src: url('/fonts/local/bn-begilophim.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Choco';
+  src: url('/fonts/local/choco-regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DGL Normador';
+  src: url('/fonts/local/dgl-normador.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DGL Tal';
+  src: url('/fonts/local/dgl-tal.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DL Bilbi';
+  src: url('/fonts/local/dl-bilbi-regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'DL Bilbi';
+  src: url('/fonts/local/dl-bilbi-bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Dybbuk';
+  src: url('/fonts/local/dybbuk-regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Dybbuk';
+  src: url('/fonts/local/dybbuk-bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Fb Electron';
+  src: url('/fonts/local/fb-electron-regular.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Fb Electron';
+  src: url('/fonts/local/fb-electron-bold.otf') format('opentype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Fb Extrim';
+  src: url('/fonts/local/fb-extrim-bold.otf') format('opentype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Fb Gipsy';
+  src: url('/fonts/local/fb-gipsy-bold.otf') format('opentype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Fb Matador';
+  src: url('/fonts/local/fb-matador-regular.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Fb Matador';
+  src: url('/fonts/local/fb-matador-bold.otf') format('opentype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Fb Monopoly';
+  src: url('/fonts/local/fb-monopoly-regular.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Fb Tubic';
+  src: url('/fonts/local/fb-tubic-bold.otf') format('opentype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Gagu';
+  src: url('/fonts/local/gagu-regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Gagu';
+  src: url('/fonts/local/gagu-bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Kamm';
+  src: url('/fonts/local/kamm-regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Kamm';
+  src: url('/fonts/local/kamm-bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Moses Text';
+  src: url('/fonts/local/moses-text.ttf') format('truetype');
+  font-weight: 400 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Salman Habaka';
+  src: url('/fonts/local/salman-habaka.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pete';
+  src: url('/fonts/local/pete-regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Pete';
+  src: url('/fonts/local/pete-bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Sina';
+  src: url('/fonts/local/sina-black.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Stam Ashkenaz CLM';
+  src: url('/fonts/local/stam-ashkenaz-clm.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Yoav';
+  src: url('/fonts/local/yoav-regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Yoav';
+  src: url('/fonts/local/yoav-bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Yiddishkeit';
+  src: url('/fonts/local/yiddishkeit-bold.otf') format('opentype');
+  font-weight: 700;
+  font-display: swap;
+}
