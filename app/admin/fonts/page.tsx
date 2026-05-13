@@ -274,11 +274,6 @@ function FontCard({ title, slot, font, onChange, sampleText }: FontCardProps) {
                   {selected && (
                     <Check className="absolute top-2 left-2 w-4 h-4 text-primary" />
                   )}
-                  {opt.source === 'local' && (
-                    <span className="absolute top-2 right-2 text-[10px] px-1.5 py-0.5 rounded-full bg-cream text-text-dark/70 border border-twine/40">
-                      מקומי
-                    </span>
-                  )}
                   <div className="text-xs text-text-dark/60 mb-1" dir="ltr">
                     {opt.family}
                   </div>
