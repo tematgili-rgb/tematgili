@@ -23,8 +23,8 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog'
 import { getAllDocuments, createDocument, updateDocument, deleteDocument } from '@/lib/db'
-import { PRODUCT_CATEGORIES } from '@/lib/constants'
 import { staticImagesFor } from '@/lib/staticImages'
+import { getMergedCategories, type MergedCategory } from '@/lib/categories'
 import type { SiteImage } from '@/lib/types'
 
 const categoryLabels: Record<SiteImage['category'], string> = {
@@ -57,6 +57,7 @@ export default function AdminImagesPage() {
 
 function Images() {
   const [images, setImages] = useState<SiteImage[]>([])
+  const [categories, setCategories] = useState<MergedCategory[]>([])
   const [loading, setLoading] = useState(true)
   const [activeCategory, setActiveCategory] = useState<SiteImage['category']>('hero_carousel')
   const [seeding, setSeeding] = useState(false)
@@ -110,6 +111,9 @@ function Images() {
 
   useEffect(() => {
     load()
+    getMergedCategories()
+      .then((list) => setCategories(list))
+      .catch(() => setCategories([]))
   }, [])
 
   const load = async () => {
@@ -366,13 +370,13 @@ function Images() {
               <div>
                 <h4 className="font-bold text-text-dark mb-3">תייג קטגוריה</h4>
                 <div className="flex flex-wrap gap-2">
-                  {PRODUCT_CATEGORIES.map((c) => (
+                  {categories.map((c) => (
                     <button
-                      key={c.id}
+                      key={c.slug}
                       type="button"
-                      onClick={() => togglePill(c.id)}
+                      onClick={() => togglePill(c.slug)}
                       className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 text-sm transition ${
-                        pendingTags.includes(c.id)
+                        pendingTags.includes(c.slug)
                           ? 'bg-primary text-text-dark border-primary'
                           : 'bg-white text-text-dark border-primary-soft hover:border-primary'
                       }`}
