@@ -30,9 +30,14 @@ export default function ImageDropzone({ onUpload, path, currentUrl, label }: Ima
         const url = await uploadFile(file, fullPath)
         setPreview(url)
         onUpload(url)
-      } catch (e) {
+      } catch (e: any) {
         console.error(e)
-        setError('שגיאה בהעלאת תמונה')
+        const msg = e?.message || ''
+        if (msg.includes('storage') || msg.includes('Storage')) {
+          setError('להעלאת תמונות חדשות צריך להפעיל Firebase Storage. בינתיים אפשר לבחור מהגלריה הקיימת.')
+        } else {
+          setError('שגיאה בהעלאת תמונה')
+        }
       } finally {
         setUploading(false)
       }
