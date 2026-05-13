@@ -134,7 +134,7 @@ export default function ImagePickerDialog({ open, onOpenChange, mode, onPick, cu
         ) : filtered.length === 0 ? (
           <div className="text-center py-12 text-gray-500 text-sm">לא נמצאו תמונות</div>
         ) : (
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 max-h-[50vh] overflow-y-auto p-1">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 max-h-[50vh] overflow-y-auto p-1 w-full">
             {filtered.map((img) => {
               const isSel = selected.includes(img.imageUrl)
               return (
@@ -142,7 +142,7 @@ export default function ImagePickerDialog({ open, onOpenChange, mode, onPick, cu
                   key={img.id}
                   type="button"
                   onClick={() => toggle(img.imageUrl)}
-                  className={`relative aspect-square bg-primary-soft/20 rounded-2xl overflow-hidden border-2 transition-all ${
+                  className={`relative aspect-square bg-primary-soft/20 rounded-2xl overflow-hidden border-2 transition-all w-full block ${
                     isSel ? 'border-primary ring-2 ring-primary' : 'border-transparent hover:border-primary-soft'
                   }`}
                 >
@@ -150,7 +150,7 @@ export default function ImagePickerDialog({ open, onOpenChange, mode, onPick, cu
                   <img
                     src={img.imageUrl}
                     alt={img.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover block"
                   />
                   {isSel && (
                     <div className="absolute top-1 right-1 bg-primary text-white rounded-full p-1">
