@@ -142,15 +142,16 @@ export default function ImagePickerDialog({ open, onOpenChange, mode, onPick, cu
                   key={img.id}
                   type="button"
                   onClick={() => toggle(img.imageUrl)}
-                  className={`relative aspect-square bg-primary-soft/20 rounded-2xl overflow-hidden border-2 transition-all w-full block ${
+                  className={`relative bg-primary-soft/20 rounded-2xl overflow-hidden border-2 transition-all w-full block ${
                     isSel ? 'border-primary ring-2 ring-primary' : 'border-transparent hover:border-primary-soft'
                   }`}
+                  style={{ aspectRatio: '1 / 1' }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={img.imageUrl}
                     alt={img.name}
-                    className="w-full h-full object-cover block"
+                    className="absolute inset-0 w-full h-full object-cover block"
                   />
                   {isSel && (
                     <div className="absolute top-1 right-1 bg-primary text-white rounded-full p-1">
