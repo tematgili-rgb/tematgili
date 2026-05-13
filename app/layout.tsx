@@ -10,6 +10,7 @@ import AccessibilityWidget from '@/components/common/AccessibilityWidget'
 import CookieConsent from '@/components/common/CookieConsent'
 import ExitIntentPopup from '@/components/common/ExitIntentPopup'
 import TrackingScripts from '@/components/common/TrackingScripts'
+import FontInjector from '@/components/common/FontInjector'
 import { CONTACT_INFO } from '@/lib/constants'
 
 const heebo = Heebo({
@@ -80,6 +81,7 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        <FontInjector />
       </head>
       <body className="min-h-screen flex flex-col bg-bg-soft text-text-dark font-sans">
         <a href="#main-content" className="skip-to-content">

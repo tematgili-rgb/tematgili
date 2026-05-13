@@ -2,16 +2,18 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Loader2, Trash2, X } from 'lucide-react'
+import { ImagePlus, Loader2, Trash2, X } from 'lucide-react'
 import { useDropzone } from 'react-dropzone'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import ImageDropzone from '@/components/admin/ImageDropzone'
+import ImageSelector from '@/components/admin/ImageSelector'
+import ImagePickerDialog from '@/components/admin/ImagePickerDialog'
 import { createDocument, updateDocument, deleteDocument } from '@/lib/db'
 import { uploadFile } from '@/lib/storage'
-import { PRODUCT_CATEGORIES, EVENT_TYPES } from '@/lib/constants'
+import { EVENT_TYPES } from '@/lib/constants'
+import { getMergedCategories, type MergedCategory } from '@/lib/categories'
 import type { Product, ProductCategoryId } from '@/lib/types'
 
 function slugify(input: string): string {
@@ -38,14 +40,24 @@ export default function ProductForm({ initial, productId }: Props) {
   const [category, setCategory] = useState<ProductCategoryId>(
     initial?.category ?? 'coloring-book'
   )
+  const [categories, setCategories] = useState<MergedCategory[]>([])
   const [shortDescription, setShortDescription] = useState(initial?.shortDescription ?? '')
   const [longDescription, setLongDescription] = useState(initial?.longDescription ?? '')
-  const [startingPrice, setStartingPrice] = useState<number>(initial?.startingPrice ?? 0)
+  const [pricePerUnit, setPricePerUnit] = useState<number | ''>(
+    initial?.pricePerUnit ?? ''
+  )
+  const [packagePrice, setPackagePrice] = useState<number | ''>(
+    initial?.packagePrice ?? ''
+  )
+  const [packageQuantity, setPackageQuantity] = useState<number | ''>(
+    initial?.packageQuantity ?? 50
+  )
   const [minQuantity, setMinQuantity] = useState<number>(initial?.minQuantity ?? 1)
   const [featuresText, setFeaturesText] = useState((initial?.features ?? []).join('\n'))
   const [occasions, setOccasions] = useState<string[]>(initial?.occasions ?? [])
   const [mainImageUrl, setMainImageUrl] = useState(initial?.mainImageUrl ?? '')
   const [galleryUrls, setGalleryUrls] = useState<string[]>(initial?.galleryUrls ?? [])
+  const [galleryPickerOpen, setGalleryPickerOpen] = useState(false)
   const [isActive, setIsActive] = useState(initial?.isActive ?? true)
   const [isFeatured, setIsFeatured] = useState(initial?.isFeatured ?? false)
   const [sortOrder, setSortOrder] = useState<number>(initial?.sortOrder ?? 0)
@@ -56,6 +68,12 @@ export default function ProductForm({ initial, productId }: Props) {
   useEffect(() => {
     if (!slugTouched) setSlug(slugify(name))
   }, [name, slugTouched])
+
+  useEffect(() => {
+    getMergedCategories()
+      .then((list) => setCategories(list))
+      .catch(() => setCategories([]))
+  }, [])
 
   const galleryDropzone = useDropzone({
     accept: { 'image/*': ['.jpg', '.jpeg', '.png', '.webp', '.gif'] },
@@ -94,11 +112,22 @@ export default function ProductForm({ initial, productId }: Props) {
     setGalleryUrls((prev) => prev.filter((u) => u !== url))
   }
 
+  const handleGalleryPick = (urls: string | string[]) => {
+    const arr = Array.isArray(urls) ? urls : [urls]
+    setGalleryUrls((prev) => {
+      const merged = [...prev]
+      for (const u of arr) if (u && !merged.includes(u)) merged.push(u)
+      return merged
+    })
+  }
+
   const validate = (): string | null => {
     if (!name.trim()) return 'נדרש שם מוצר'
     if (!slug.trim()) return 'נדרש slug'
     if (!shortDescription.trim()) return 'נדרש תיאור קצר'
-    if (startingPrice <= 0) return 'המחיר חייב להיות חיובי'
+    const ppu = Number(pricePerUnit) || 0
+    const pp = Number(packagePrice) || 0
+    if (ppu <= 0 && pp <= 0) return 'יש להזין מחיר ליחידה או מחיר חבילה'
     if (minQuantity <= 0) return 'כמות מינימלית חייבת להיות חיובית'
     if (!mainImageUrl) return 'נדרשת תמונה ראשית'
     return null
@@ -114,13 +143,21 @@ export default function ProductForm({ initial, productId }: Props) {
     setError(null)
     setSubmitting(true)
     try {
+      const ppu = Number(pricePerUnit) || undefined
+      const pp = Number(packagePrice) || undefined
+      const pq = Number(packageQuantity) || undefined
+      const startingPrice = ppu ?? pp ?? 0
+
       const data: Omit<Product, 'id' | 'createdAt'> = {
         name: name.trim(),
         slug: slug.trim(),
         category,
         shortDescription: shortDescription.trim(),
         longDescription: longDescription.trim(),
-        startingPrice: Number(startingPrice),
+        startingPrice,
+        pricePerUnit: ppu,
+        packagePrice: pp,
+        packageQuantity: pq,
         minQuantity: Number(minQuantity),
         features: featuresText
           .split('\n')
@@ -133,6 +170,11 @@ export default function ProductForm({ initial, productId }: Props) {
         isFeatured,
         sortOrder: Number(sortOrder),
       }
+      // Strip undefined keys so Firestore doesn't choke
+      Object.keys(data).forEach((k) => {
+        if ((data as any)[k] === undefined) delete (data as any)[k]
+      })
+
       if (isEdit && productId) {
         await updateDocument<Product>('products', productId, data)
       } else {
@@ -196,8 +238,8 @@ export default function ProductForm({ initial, productId }: Props) {
             onChange={(e) => setCategory(e.target.value as ProductCategoryId)}
             className="h-10 w-full rounded-2xl border-2 border-gray-200 bg-white px-3 text-sm focus:border-primary focus:outline-none"
           >
-            {PRODUCT_CATEGORIES.map((c) => (
-              <option key={c.id} value={c.id}>
+            {categories.map((c) => (
+              <option key={c.slug} value={c.slug}>
                 {c.icon} {c.name}
               </option>
             ))}
@@ -223,28 +265,60 @@ export default function ProductForm({ initial, productId }: Props) {
             onChange={(e) => setLongDescription(e.target.value)}
           />
         </div>
+      </div>
 
+      <div className="bg-white rounded-2xl shadow-lg p-6 space-y-4">
+        <h3 className="font-bold text-lg text-text-dark">תמחור</h3>
+        <p className="text-sm text-text-dark/70">
+          הזן מחיר ליחידה, מחיר חבילה, או שניהם. לפחות אחד חובה.
+        </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <Label htmlFor="price">מחיר התחלתי (₪) *</Label>
+            <Label htmlFor="ppu">מחיר ליחידה (₪)</Label>
             <Input
-              id="price"
+              id="ppu"
               type="number"
-              min={1}
-              value={startingPrice}
-              onChange={(e) => setStartingPrice(Number(e.target.value))}
-              required
+              min={0}
+              step="0.5"
+              value={pricePerUnit}
+              onChange={(e) => setPricePerUnit(e.target.value === '' ? '' : Number(e.target.value))}
+              placeholder="לדוגמה 5"
             />
           </div>
           <div>
-            <Label htmlFor="minq">כמות מינימלית *</Label>
+            <Label htmlFor="pq">כמות בחבילה</Label>
+            <Input
+              id="pq"
+              type="number"
+              min={1}
+              value={packageQuantity}
+              onChange={(e) => setPackageQuantity(e.target.value === '' ? '' : Number(e.target.value))}
+              placeholder="50"
+            />
+          </div>
+          <div>
+            <Label htmlFor="pp">מחיר חבילה (₪)</Label>
+            <Input
+              id="pp"
+              type="number"
+              min={0}
+              step="0.5"
+              value={packagePrice}
+              onChange={(e) => setPackagePrice(e.target.value === '' ? '' : Number(e.target.value))}
+              placeholder="לדוגמה 200"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="minq">כמות מינימלית להזמנה</Label>
             <Input
               id="minq"
               type="number"
               min={1}
               value={minQuantity}
               onChange={(e) => setMinQuantity(Number(e.target.value))}
-              required
             />
           </div>
           <div>
@@ -300,20 +374,29 @@ export default function ProductForm({ initial, productId }: Props) {
       <div className="bg-white rounded-2xl shadow-lg p-6 space-y-4">
         <h3 className="font-bold text-lg text-text-dark">תמונות</h3>
 
-        <ImageDropzone
+        <ImageSelector
           label="תמונה ראשית *"
           path={`products/${slug || 'temp'}/main`}
           currentUrl={mainImageUrl}
-          onUpload={setMainImageUrl}
+          onChange={setMainImageUrl}
         />
-        {/* hidden input ensures form submission shows it */}
         <input type="hidden" name="mainImageUrl" value={mainImageUrl} />
 
         <div>
-          <Label>גלריה</Label>
+          <div className="flex items-center justify-between mb-2">
+            <Label>גלריה</Label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setGalleryPickerOpen(true)}
+            >
+              <ImagePlus className="w-4 h-4 ml-1" /> בחר מהגלריה
+            </Button>
+          </div>
           <div
             {...galleryDropzone.getRootProps()}
-            className={`border-2 border-dashed rounded-2xl p-4 mt-2 text-center cursor-pointer ${
+            className={`border-2 border-dashed rounded-2xl p-4 text-center cursor-pointer ${
               galleryDropzone.isDragActive
                 ? 'border-primary bg-primary-soft'
                 : 'border-gray-300 hover:border-primary'
@@ -351,6 +434,14 @@ export default function ProductForm({ initial, productId }: Props) {
             </div>
           )}
         </div>
+
+        <ImagePickerDialog
+          open={galleryPickerOpen}
+          onOpenChange={setGalleryPickerOpen}
+          mode="multiple"
+          onPick={handleGalleryPick}
+          currentUrls={galleryUrls}
+        />
       </div>
 
       <div className="bg-white rounded-2xl shadow-lg p-6 space-y-3">

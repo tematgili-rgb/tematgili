@@ -110,10 +110,30 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
               )}
             </div>
 
-            <div className="flex items-baseline gap-3 pb-4 border-b border-primary-soft">
-              <span className="text-3xl font-black text-accent">
-                החל מ-₪{product.startingPrice}
-              </span>
+            <div className="flex items-baseline gap-3 pb-4 border-b border-primary-soft flex-wrap">
+              {product.pricePerUnit && product.packagePrice ? (
+                <span className="text-2xl md:text-3xl font-black text-accent">
+                  ₪{product.pricePerUnit} ליח׳
+                  {product.packageQuantity ? (
+                    <> · ₪{product.packagePrice} ל-{product.packageQuantity} יח׳</>
+                  ) : (
+                    <> · ₪{product.packagePrice} לחבילה</>
+                  )}
+                </span>
+              ) : product.pricePerUnit ? (
+                <span className="text-3xl font-black text-accent">
+                  ₪{product.pricePerUnit} ליח׳
+                </span>
+              ) : product.packagePrice ? (
+                <span className="text-3xl font-black text-accent">
+                  ₪{product.packagePrice}
+                  {product.packageQuantity ? ` ל-${product.packageQuantity} יח׳` : ' לחבילה'}
+                </span>
+              ) : (
+                <span className="text-3xl font-black text-accent">
+                  החל מ-₪{product.startingPrice}
+                </span>
+              )}
               {product.minQuantity > 0 && (
                 <span className="text-sm text-text-dark/60">
                   • מינ׳ {product.minQuantity} יח׳

@@ -7,13 +7,15 @@ import ProductCard from '@/components/product/ProductCard'
 import ProductFiltersBar from '@/components/product/ProductFiltersBar'
 import LeadFormInline from '@/components/forms/LeadFormInline'
 import { PRODUCT_CATEGORIES } from '@/lib/constants'
-import { getActiveProducts } from '@/lib/db'
+import { getActiveProducts, getAllDocuments, updateDocument, deleteDocument } from '@/lib/db'
+import { useAuth } from '@/hooks/useAuth'
 import type { Product, ProductCategoryId } from '@/lib/types'
 
 function ProductsPageInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const selectedCategory = searchParams.get('category') || undefined
+  const { isAdmin } = useAuth()
 
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -21,9 +23,14 @@ function ProductsPageInner() {
   useEffect(() => {
     let active = true
     setLoading(true)
-    getActiveProducts()
+    const fetcher = isAdmin
+      ? getAllDocuments<Product>('products')
+      : getActiveProducts()
+    fetcher
       .then((list) => {
-        if (active) setProducts(list)
+        if (!active) return
+        const sorted = [...list].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+        setProducts(sorted)
       })
       .catch(() => {
         if (active) setProducts([])
@@ -34,7 +41,7 @@ function ProductsPageInner() {
     return () => {
       active = false
     }
-  }, [])
+  }, [isAdmin])
 
   const filtered = useMemo(() => {
     return products.filter((p) => {
@@ -49,6 +56,32 @@ function ProductsPageInner() {
     else params.delete(key)
     const qs = params.toString()
     router.replace(qs ? `/products?${qs}` : '/products', { scroll: false })
+  }
+
+  const handleToggleActive = async (p: Product) => {
+    try {
+      await updateDocument<Product>('products', p.id, { isActive: !p.isActive })
+      setProducts((prev) =>
+        prev.map((x) => (x.id === p.id ? { ...x, isActive: !p.isActive } : x))
+      )
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  const handleEdit = (p: Product) => {
+    router.push(`/admin/products/${p.id}`)
+  }
+
+  const handleDelete = async (p: Product) => {
+    if (!confirm(`למחוק את "${p.name}"?`)) return
+    try {
+      await deleteDocument('products', p.id)
+      setProducts((prev) => prev.filter((x) => x.id !== p.id))
+    } catch (e) {
+      console.error(e)
+      alert('שגיאה במחיקה')
+    }
   }
 
   return (
@@ -85,7 +118,14 @@ function ProductsPageInner() {
         ) : filtered.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             {filtered.map((p) => (
-              <ProductCard key={p.id} product={p} />
+              <ProductCard
+                key={p.id}
+                product={p}
+                adminMode={isAdmin}
+                onToggleActive={handleToggleActive}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
             ))}
           </div>
         ) : (

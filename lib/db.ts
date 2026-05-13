@@ -26,6 +26,7 @@ import type {
   Settings,
   Package,
   ProductCategoryId,
+  Category,
 } from './types'
 
 export const COLLECTIONS = {
@@ -35,6 +36,7 @@ export const COLLECTIONS = {
   siteImages: 'siteImages',
   packages: 'packages',
   settings: 'settings',
+  categories: 'categories',
 } as const
 
 function ensureFirebase(): Firestore {
@@ -211,6 +213,19 @@ export async function getPackageBySlug(slug: string): Promise<Package | null> {
     1
   )
   return results[0] || null
+}
+
+export async function getActiveCategories(): Promise<Category[]> {
+  return queryDocuments<Category>(
+    COLLECTIONS.categories,
+    [{ field: 'isActive', op: '==', value: true }],
+    'sortOrder'
+  )
+}
+
+export async function getAllCategoriesAdmin(): Promise<Category[]> {
+  const all = await getAllDocuments<Category>(COLLECTIONS.categories)
+  return all.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
 }
 
 export async function getSettings(): Promise<Settings | null> {

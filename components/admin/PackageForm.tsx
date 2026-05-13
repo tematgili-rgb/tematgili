@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import ImageDropzone from '@/components/admin/ImageDropzone'
+import ImageSelector from '@/components/admin/ImageSelector'
 import { createDocument, updateDocument, deleteDocument } from '@/lib/db'
 import { EVENT_TYPES } from '@/lib/constants'
 import type { Package } from '@/lib/types'
@@ -195,11 +195,11 @@ export default function PackageForm({ initial, packageId }: Props) {
           />
         </div>
 
-        <ImageDropzone
+        <ImageSelector
           label="תמונת חבילה *"
           path={`packages/${slug || 'temp'}/main`}
           currentUrl={imageUrl}
-          onUpload={setImageUrl}
+          onChange={setImageUrl}
         />
 
         <label className="flex items-center gap-2 cursor-pointer">

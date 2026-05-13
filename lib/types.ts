@@ -1,13 +1,7 @@
 import { Timestamp } from 'firebase/firestore'
 
-export type ProductCategoryId =
-  | 'coloring-book'
-  | 'snack-wrap'
-  | 'popcorn-box'
-  | 'party-hat'
-  | 'gift-box'
-  | 'bottle-label'
-  | 'backdrop-sign'
+// Runtime allows any string id — built-ins are listed in lib/constants.ts.
+export type ProductCategoryId = string
 
 export interface Product {
   id: string
@@ -16,7 +10,10 @@ export interface Product {
   name: string
   shortDescription: string
   longDescription: string
-  startingPrice: number
+  startingPrice: number          // computed: pricePerUnit ?? packagePrice ?? 0
+  pricePerUnit?: number
+  packagePrice?: number
+  packageQuantity?: number
   minQuantity: number
   mainImageUrl: string
   galleryUrls: string[]
@@ -66,6 +63,12 @@ export interface SiteImage {
   createdAt: Timestamp | Date
 }
 
+export interface FontSetting {
+  family: string
+  url?: string
+  source: 'upload' | 'google'
+}
+
 export interface Settings {
   contactPhone: string
   contactWhatsapp: string
@@ -75,6 +78,8 @@ export interface Settings {
   tiktokUrl?: string
   address?: string
   workingHours?: string
+  fontHeading?: FontSetting
+  fontBody?: FontSetting
 }
 
 export interface Package {
@@ -88,5 +93,17 @@ export interface Package {
   eventType?: string
   isActive: boolean
   sortOrder: number
+  createdAt: Timestamp | Date
+}
+
+export interface Category {
+  id: string
+  slug: string
+  name: string
+  icon: string
+  imageUrls: string[]
+  sortOrder: number
+  isActive: boolean
+  isBuiltIn?: boolean
   createdAt: Timestamp | Date
 }
