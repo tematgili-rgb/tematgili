@@ -77,6 +77,7 @@ export default function RootLayout({
     <html lang="he" dir="rtl" className={`${heebo.variable} ${displayFont.variable}`}>
       <head>
         <link rel="manifest" href="/manifest.json" />
+        <link rel="stylesheet" href="/fonts/local-hebrew.css" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

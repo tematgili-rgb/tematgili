@@ -44,6 +44,7 @@ export default function FontInjector() {
         if (!s) return
         setLoaded({ heading: s.fontHeading, body: s.fontBody })
         const links: string[] = []
+        // 'local' source loads via /fonts/local-hebrew.css (in layout.tsx) — nothing to inject here.
         if (s.fontHeading?.source === 'google' && s.fontHeading.url) links.push(s.fontHeading.url)
         if (s.fontBody?.source === 'google' && s.fontBody.url) links.push(s.fontBody.url)
         setGoogleLinks(links)

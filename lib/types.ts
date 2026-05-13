@@ -66,7 +66,7 @@ export interface SiteImage {
 export interface FontSetting {
   family: string
   url?: string
-  source: 'upload' | 'google'
+  source: 'upload' | 'google' | 'local'
 }
 
 export interface Settings {

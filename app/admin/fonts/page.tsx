@@ -31,10 +31,12 @@ function Fonts() {
   const [error, setError] = useState<string | null>(null)
   const [savedMessage, setSavedMessage] = useState<string | null>(null)
 
-  // Inject all catalog font CSS links once so previews render correctly.
+  // Inject all Google catalog font CSS links once so previews render correctly.
+  // Local fonts are loaded site-wide via /fonts/local-hebrew.css in layout.tsx.
   useEffect(() => {
     const ids = new Set<string>()
     HEBREW_FONTS.forEach((f) => {
+      if (f.source === 'local' || !f.url) return
       const id = `hebfont-${f.family.replace(/\s+/g, '-')}`
       if (ids.has(id) || document.getElementById(id)) return
       ids.add(id)
@@ -139,12 +141,19 @@ function FontCard({ title, slot, font, onChange, sampleText }: FontCardProps) {
   const [mode, setMode] = useState<Mode>(initialMode)
   const [family, setFamily] = useState(font?.family ?? '')
   const [url, setUrl] = useState(font?.url ?? '')
+  const [pickedSource, setPickedSource] = useState<'google' | 'local'>(
+    font?.source === 'local' ? 'local' : 'google'
+  )
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [catFilter, setCatFilter] = useState<CatFilter>('all')
 
-  // For Settings: 'upload' stays upload, otherwise 'google' (catalog is just a UX shortcut for google).
-  const sourceForSettings: 'upload' | 'google' = mode === 'upload' ? 'upload' : 'google'
+  // For Settings: upload stays upload; catalog picks carry the catalog source ('google' | 'local');
+  // free-text google URL stays google.
+  const sourceForSettings: 'upload' | 'google' | 'local' =
+    mode === 'upload' ? 'upload' :
+    mode === 'catalog' ? pickedSource :
+    'google'
 
   useEffect(() => {
     onChange(
@@ -153,7 +162,7 @@ function FontCard({ title, slot, font, onChange, sampleText }: FontCardProps) {
         : undefined
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [family, url, mode])
+  }, [family, url, mode, pickedSource])
 
   const dropzone = useDropzone({
     accept: {
@@ -188,6 +197,7 @@ function FontCard({ title, slot, font, onChange, sampleText }: FontCardProps) {
   const pickCatalog = (opt: HebrewFontOption) => {
     setFamily(opt.family)
     setUrl(opt.url)
+    setPickedSource(opt.source === 'local' ? 'local' : 'google')
   }
 
   const visibleFonts = HEBREW_FONTS.filter((f) =>
@@ -263,6 +273,11 @@ function FontCard({ title, slot, font, onChange, sampleText }: FontCardProps) {
                 >
                   {selected && (
                     <Check className="absolute top-2 left-2 w-4 h-4 text-primary" />
+                  )}
+                  {opt.source === 'local' && (
+                    <span className="absolute top-2 right-2 text-[10px] px-1.5 py-0.5 rounded-full bg-cream text-text-dark/70 border border-twine/40">
+                      מקומי
+                    </span>
                   )}
                   <div className="text-xs text-text-dark/60 mb-1" dir="ltr">
                     {opt.family}

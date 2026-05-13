@@ -1,0 +1,136 @@
+/* Local Hebrew fonts — registered globally so admin previews and live pages can use them */
+
+@font-face {
+  font-family: 'Drugulin CLM';
+  src: url('/fonts/local/drugulinclm-bold-webfont.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Gladia CLM';
+  src: url('/fonts/local/gladiaclm-bold-webfont.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hadasim CLM';
+  src: url('/fonts/local/hadasimclm-regular-webfont.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Hadasim CLM';
+  src: url('/fonts/local/hadasimclm-bold-webfont.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hillel CLM';
+  src: url('/fonts/local/hillelclm-medium-webfont.ttf') format('truetype');
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Keter YG';
+  src: url('/fonts/local/keteryg-medium-webfont.ttf') format('truetype');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Keter YG';
+  src: url('/fonts/local/keteryg-bold-webfont.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Shofar';
+  src: url('/fonts/local/shofardemi-bold-webfont.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Varela Extra';
+  src: url('/fonts/local/varela-extra-regular-fm.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Haim Classic';
+  src: url('/fonts/local/haim-classic-regular-fm.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Abraham';
+  src: url('/fonts/local/Abraham-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Moses Display';
+  src: url('/fonts/local/MosesDisplay_1.0VF.ttf') format('truetype');
+  font-weight: 400 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'FUP Galil';
+  src: url('/fonts/local/fup-galil-regular.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'FUP Galil';
+  src: url('/fonts/local/fup-galil-bold.otf') format('opentype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Ogen';
+  src: url('/fonts/local/ogen-regular.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Ogen';
+  src: url('/fonts/local/ogen-bold.otf') format('opentype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hayim';
+  src: url('/fonts/local/Hayim-new.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Migdal';
+  src: url('/fonts/local/MigdalFontwin.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OS Aran';
+  src: url('/fonts/local/os-aran-regular.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'OS Aran';
+  src: url('/fonts/local/os-aran-bold.otf') format('opentype');
+  font-weight: 600;
+  font-display: swap;
+}
