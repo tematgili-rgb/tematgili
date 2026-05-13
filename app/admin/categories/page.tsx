@@ -1,8 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { Edit, Eye, EyeOff, ImagePlus, Loader2, Plus, Trash2, X, Database } from 'lucide-react'
-import { Timestamp } from 'firebase/firestore'
+import { useEffect, useRef, useState } from 'react'
+import { Edit, Eye, EyeOff, ImagePlus, Loader2, Plus, Trash2, X, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -20,9 +19,10 @@ import {
   updateDocument,
   deleteDocument,
   getAllCategoriesAdmin,
+  getAllDocuments,
 } from '@/lib/db'
 import { PRODUCT_CATEGORIES } from '@/lib/constants'
-import type { Category } from '@/lib/types'
+import type { Category, Product } from '@/lib/types'
 
 function slugify(input: string): string {
   return input
@@ -50,71 +50,86 @@ interface DisplayCategory {
   sortOrder: number
   isActive: boolean
   isBuiltIn: boolean
-  fromDb: boolean
 }
 
 function Categories() {
   const [items, setItems] = useState<DisplayCategory[]>([])
+  const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState<DisplayCategory | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [seeding, setSeeding] = useState(false)
+  const [savedFlash, setSavedFlash] = useState<string | null>(null)
+  const seededRef = useRef(false)
 
-  const load = async () => {
-    setLoading(true)
-    try {
-      const fromDb = await getAllCategoriesAdmin()
-      const dbBySlug = new Map(fromDb.map((c) => [c.slug, c]))
-      const merged: DisplayCategory[] = []
+  const buildDisplay = (fromDb: Category[]): DisplayCategory[] => {
+    const bySlug = new Map(fromDb.map((c) => [c.slug, c]))
+    const out: DisplayCategory[] = []
 
-      // Built-ins (virtual if not in DB)
-      PRODUCT_CATEGORIES.forEach((b, i) => {
-        const inDb = dbBySlug.get(b.id)
-        if (inDb) {
-          merged.push({
-            id: inDb.id,
-            slug: inDb.slug,
-            name: inDb.name,
-            icon: inDb.icon,
-            imageUrls: inDb.imageUrls ?? [],
-            sortOrder: inDb.sortOrder ?? i,
-            isActive: inDb.isActive ?? true,
-            isBuiltIn: true,
-            fromDb: true,
-          })
-        } else {
-          merged.push({
-            id: `builtin-${b.id}`,
-            slug: b.id,
-            name: b.name,
-            icon: b.icon,
-            imageUrls: [],
-            sortOrder: i,
-            isActive: true,
-            isBuiltIn: true,
-            fromDb: false,
-          })
-        }
-      })
-
-      // Custom from DB
-      for (const c of fromDb) {
-        if (PRODUCT_CATEGORIES.find((b) => b.id === c.slug)) continue
-        merged.push({
-          id: c.id,
-          slug: c.slug,
-          name: c.name,
-          icon: c.icon,
-          imageUrls: c.imageUrls ?? [],
-          sortOrder: c.sortOrder ?? 99,
-          isActive: c.isActive ?? true,
-          isBuiltIn: !!c.isBuiltIn,
-          fromDb: true,
+    PRODUCT_CATEGORIES.forEach((b, i) => {
+      const inDb = bySlug.get(b.id)
+      if (inDb) {
+        out.push({
+          id: inDb.id,
+          slug: inDb.slug,
+          name: inDb.name,
+          icon: inDb.icon,
+          imageUrls: inDb.imageUrls ?? [],
+          sortOrder: inDb.sortOrder ?? i,
+          isActive: inDb.isActive ?? true,
+          isBuiltIn: true,
         })
       }
+    })
 
-      merged.sort((a, b) => a.sortOrder - b.sortOrder)
-      setItems(merged)
+    for (const c of fromDb) {
+      if (PRODUCT_CATEGORIES.find((b) => b.id === c.slug)) continue
+      out.push({
+        id: c.id,
+        slug: c.slug,
+        name: c.name,
+        icon: c.icon,
+        imageUrls: c.imageUrls ?? [],
+        sortOrder: c.sortOrder ?? 99,
+        isActive: c.isActive ?? true,
+        isBuiltIn: !!c.isBuiltIn,
+      })
+    }
+
+    return out.sort((a, b) => a.sortOrder - b.sortOrder)
+  }
+
+  const loadAll = async () => {
+    setLoading(true)
+    try {
+      let fromDb = await getAllCategoriesAdmin()
+
+      // Auto-seed any missing built-ins (only once per mount)
+      if (!seededRef.current) {
+        seededRef.current = true
+        const existing = new Set(fromDb.map((c) => c.slug))
+        const missing = PRODUCT_CATEGORIES.filter((b) => !existing.has(b.id))
+        if (missing.length > 0) {
+          await Promise.all(
+            missing.map((b, idx) => {
+              const i = PRODUCT_CATEGORIES.findIndex((x) => x.id === b.id)
+              return createDocument<Omit<Category, 'id' | 'createdAt'>>('categories', {
+                slug: b.id,
+                name: b.name,
+                icon: b.icon,
+                imageUrls: [],
+                sortOrder: i >= 0 ? i : idx,
+                isActive: true,
+                isBuiltIn: true,
+              })
+            })
+          )
+          fromDb = await getAllCategoriesAdmin()
+        }
+      }
+
+      const prods = await getAllDocuments<Product>('products').catch(() => [])
+      setProducts(prods)
+      setItems(buildDisplay(fromDb))
     } catch (e) {
       console.error(e)
     } finally {
@@ -123,38 +138,22 @@ function Categories() {
   }
 
   useEffect(() => {
-    load()
+    loadAll()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const handleSeedDefaults = async () => {
-    if (!confirm('להזין את 7 הקטגוריות הסטטיות ל-Firestore? קטגוריות שכבר קיימות יידולגו.')) return
-    setSeeding(true)
-    try {
-      const fromDb = await getAllCategoriesAdmin()
-      const existing = new Set(fromDb.map((c) => c.slug))
-      let added = 0
-      for (let i = 0; i < PRODUCT_CATEGORIES.length; i++) {
-        const b = PRODUCT_CATEGORIES[i]
-        if (existing.has(b.id)) continue
-        await createDocument<Omit<Category, 'id' | 'createdAt'>>('categories', {
-          slug: b.id,
-          name: b.name,
-          icon: b.icon,
-          imageUrls: [],
-          sortOrder: i,
-          isActive: true,
-          isBuiltIn: true,
-        })
-        added++
-      }
-      await load()
-      alert(`נוספו ${added} קטגוריות`)
-    } catch (e) {
-      console.error(e)
-      alert('שגיאה בהזנת ברירות מחדל')
-    } finally {
-      setSeeding(false)
-    }
+  const productsBySlug = new Map<string, Product[]>()
+  for (const p of products) {
+    const list = productsBySlug.get(p.category) ?? []
+    list.push(p)
+    productsBySlug.set(p.category, list)
+  }
+
+  const flashSaved = (id: string) => {
+    setSavedFlash(id)
+    window.setTimeout(() => {
+      setSavedFlash((curr) => (curr === id ? null : curr))
+    }, 2000)
   }
 
   const openNew = () => {
@@ -167,7 +166,6 @@ function Categories() {
       sortOrder: items.length,
       isActive: true,
       isBuiltIn: false,
-      fromDb: false,
     })
     setDialogOpen(true)
   }
@@ -178,29 +176,12 @@ function Categories() {
   }
 
   const handleToggle = async (cat: DisplayCategory) => {
-    if (!cat.fromDb) {
-      // Built-in not in DB → create it as inactive
-      const id = await createDocument<Omit<Category, 'id' | 'createdAt'>>('categories', {
-        slug: cat.slug,
-        name: cat.name,
-        icon: cat.icon,
-        imageUrls: cat.imageUrls,
-        sortOrder: cat.sortOrder,
-        isActive: !cat.isActive,
-        isBuiltIn: cat.isBuiltIn,
-      })
-      setItems((prev) =>
-        prev.map((p) =>
-          p.slug === cat.slug ? { ...p, id, fromDb: true, isActive: !cat.isActive } : p
-        )
-      )
-      return
-    }
     try {
       await updateDocument<Category>('categories', cat.id, { isActive: !cat.isActive })
       setItems((prev) =>
         prev.map((p) => (p.id === cat.id ? { ...p, isActive: !cat.isActive } : p))
       )
+      flashSaved(cat.id)
     } catch (e) {
       console.error(e)
     }
@@ -211,7 +192,6 @@ function Categories() {
       alert('לא ניתן למחוק קטגוריה מובנית. ניתן רק להפוך אותה ללא פעילה.')
       return
     }
-    if (!cat.fromDb) return
     if (!confirm(`למחוק את "${cat.name}"?`)) return
     try {
       await deleteDocument('categories', cat.id)
@@ -222,6 +202,20 @@ function Categories() {
     }
   }
 
+  const handleSaved = (saved: DisplayCategory) => {
+    setItems((prev) => {
+      const idx = prev.findIndex((p) => p.id === saved.id)
+      if (idx >= 0) {
+        const next = [...prev]
+        next[idx] = saved
+        return next.sort((a, b) => a.sortOrder - b.sortOrder)
+      }
+      return [...prev, saved].sort((a, b) => a.sortOrder - b.sortOrder)
+    })
+    flashSaved(saved.id)
+    setDialogOpen(false)
+  }
+
   return (
     <div dir="rtl">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -230,14 +224,6 @@ function Categories() {
           <p className="text-gray-600">{items.length} קטגוריות</p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <Button variant="outline" onClick={handleSeedDefaults} disabled={seeding}>
-            {seeding ? (
-              <Loader2 className="w-4 h-4 ml-2 animate-spin" />
-            ) : (
-              <Database className="w-4 h-4 ml-2" />
-            )}
-            אתחל ברירות מחדל
-          </Button>
           <Button onClick={openNew}>
             <Plus className="w-4 h-4 ml-1" /> קטגוריה חדשה
           </Button>
@@ -250,70 +236,99 @@ function Categories() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {items.map((cat) => (
-            <div
-              key={`${cat.slug}-${cat.id}`}
-              className={`bg-white rounded-2xl shadow-lg p-4 border-2 ${
-                cat.isActive ? 'border-transparent' : 'border-gray-200 opacity-60'
-              }`}
-            >
-              <div className="flex items-start gap-3 mb-3">
-                <div className="text-4xl">{cat.icon}</div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-text-dark truncate">{cat.name}</h3>
-                  <p className="text-xs text-gray-500 truncate">{cat.slug}</p>
-                  {cat.isBuiltIn && (
-                    <span className="inline-block mt-1 text-[10px] bg-primary-soft text-text-dark px-2 py-0.5 rounded-full">
-                      מובנה
-                    </span>
+          {items.map((cat) => {
+            const catProducts = productsBySlug.get(cat.slug) ?? []
+            const productThumbs = catProducts
+              .map((p) => p.mainImageUrl)
+              .filter((u): u is string => !!u)
+              .slice(0, 4)
+            const thumbs =
+              productThumbs.length > 0 ? productThumbs : cat.imageUrls.slice(0, 4)
+            const isFlashing = savedFlash === cat.id
+
+            return (
+              <div
+                key={cat.id}
+                className={`relative bg-white rounded-2xl shadow-lg p-4 border-2 transition-colors ${
+                  cat.isActive ? 'border-transparent' : 'border-gray-200 opacity-60'
+                }`}
+              >
+                {isFlashing && (
+                  <div className="absolute top-2 left-2 flex items-center gap-1 bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full">
+                    <Check className="w-3 h-3" /> נשמר
+                  </div>
+                )}
+
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="text-4xl">{cat.icon}</div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-text-dark truncate">{cat.name}</h3>
+                    <p className="text-xs text-gray-500 truncate">{cat.slug}</p>
+                    {cat.isBuiltIn && (
+                      <span className="inline-block mt-1 text-[10px] bg-primary-soft text-text-dark px-2 py-0.5 rounded-full">
+                        מובנה
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex gap-2 mb-3 text-xs">
+                  <span className="bg-primary-soft text-text-dark px-2 py-1 rounded-full">
+                    {catProducts.length} מוצרים
+                  </span>
+                  <span className="bg-cream text-text-dark px-2 py-1 rounded-full">
+                    {cat.imageUrls.length} תמונות
+                  </span>
+                </div>
+
+                <div className="flex gap-1 mb-3 min-h-[3.5rem]">
+                  {thumbs.length > 0 ? (
+                    thumbs.map((u, i) => (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        key={`${u}-${i}`}
+                        src={u}
+                        alt=""
+                        className="w-14 h-14 object-cover rounded-xl shrink-0 border border-primary-soft"
+                      />
+                    ))
+                  ) : (
+                    <div className="text-xs text-gray-400 flex items-center">אין תמונות / מוצרים</div>
+                  )}
+                </div>
+
+                <div className="flex gap-1 pt-2 border-t border-primary-soft">
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => handleToggle(cat)}
+                    title={cat.isActive ? 'הסתר' : 'הצג'}
+                  >
+                    {cat.isActive ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => openEdit(cat)}
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  {!cat.isBuiltIn && (
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      className="flex-1 border-accent text-accent hover:bg-accent hover:text-white"
+                      onClick={() => handleDelete(cat)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   )}
                 </div>
               </div>
-              {cat.imageUrls.length > 0 && (
-                <div className="flex gap-1 mb-3 overflow-x-auto">
-                  {cat.imageUrls.slice(0, 4).map((u) => (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      key={u}
-                      src={u}
-                      alt=""
-                      className="w-14 h-14 object-cover rounded-xl shrink-0"
-                    />
-                  ))}
-                </div>
-              )}
-              <div className="flex gap-1 pt-2 border-t border-primary-soft">
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => handleToggle(cat)}
-                  title={cat.isActive ? 'הסתר' : 'הצג'}
-                >
-                  {cat.isActive ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                </Button>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => openEdit(cat)}
-                >
-                  <Edit className="w-4 h-4" />
-                </Button>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className={`flex-1 border-accent text-accent hover:bg-accent hover:text-white ${
-                    cat.isBuiltIn ? 'opacity-40 cursor-not-allowed' : ''
-                  }`}
-                  disabled={cat.isBuiltIn}
-                  onClick={() => handleDelete(cat)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
 
@@ -321,10 +336,7 @@ function Categories() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         editing={editing}
-        onSaved={() => {
-          setDialogOpen(false)
-          load()
-        }}
+        onSaved={handleSaved}
       />
     </div>
   )
@@ -334,7 +346,7 @@ interface DialogProps {
   open: boolean
   onOpenChange: (o: boolean) => void
   editing: DisplayCategory | null
-  onSaved: () => void
+  onSaved: (saved: DisplayCategory) => void
 }
 
 function CategoryEditDialog({ open, onOpenChange, editing, onSaved }: DialogProps) {
@@ -401,12 +413,22 @@ function CategoryEditDialog({ open, onOpenChange, editing, onSaved }: DialogProp
         isActive,
         isBuiltIn: editing.isBuiltIn,
       }
-      if (editing.fromDb) {
+      let savedId = editing.id
+      if (editing.id) {
         await updateDocument<Category>('categories', editing.id, payload)
       } else {
-        await createDocument<typeof payload>('categories', payload)
+        savedId = await createDocument<typeof payload>('categories', payload)
       }
-      onSaved()
+      onSaved({
+        id: savedId,
+        slug: payload.slug,
+        name: payload.name,
+        icon: payload.icon,
+        imageUrls: payload.imageUrls,
+        sortOrder: payload.sortOrder,
+        isActive: payload.isActive,
+        isBuiltIn: !!payload.isBuiltIn,
+      })
     } catch (e: any) {
       console.error(e)
       setError(e?.message || 'שגיאה בשמירה')
@@ -419,7 +441,7 @@ function CategoryEditDialog({ open, onOpenChange, editing, onSaved }: DialogProp
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto" dir="rtl">
         <DialogHeader>
-          <DialogTitle>{editing.fromDb ? 'ערוך קטגוריה' : 'קטגוריה חדשה'}</DialogTitle>
+          <DialogTitle>{editing.id ? 'ערוך קטגוריה' : 'קטגוריה חדשה'}</DialogTitle>
           <DialogDescription>
             {editing.isBuiltIn ? 'קטגוריה מובנית — ניתן לערוך תמונות ושם.' : 'קטגוריה מותאמת אישית.'}
           </DialogDescription>
