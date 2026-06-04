@@ -59,7 +59,9 @@ function Packages() {
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
           <h2 className="text-2xl font-bold text-text-dark mb-1">ניהול חבילות</h2>
-          <p className="text-gray-600">{items.length > 0 && `${items.length} חבילות`}</p>
+          <p className="text-gray-600">
+            {items.length} חבילות סה״כ · {items.filter((p) => p.isActive).length} פעילות
+          </p>
         </div>
         <Link href="/admin/packages/new">
           <Button>

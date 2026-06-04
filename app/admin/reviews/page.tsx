@@ -66,6 +66,17 @@ function Reviews() {
     }
   }
 
+  const handleUnapprove = async (r: Review) => {
+    try {
+      await updateDocument<Review>('reviews', r.id, { status: 'pending' })
+      setReviews((prev) =>
+        prev.map((x) => (x.id === r.id ? { ...x, status: 'pending' } : x))
+      )
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
   const handleToggleFeatured = async (r: Review) => {
     try {
       await updateDocument<Review>('reviews', r.id, { featured: !r.featured })
@@ -89,6 +100,7 @@ function Reviews() {
 
   const pending = reviews.filter((r) => r.status === 'pending')
   const approved = reviews.filter((r) => r.status === 'approved')
+  const featuredCount = reviews.filter((r) => r.featured).length
   const list = tab === 'pending' ? pending : approved
 
   return (
@@ -96,7 +108,9 @@ function Reviews() {
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
           <h2 className="text-2xl font-bold text-text-dark mb-1">ניהול ביקורות</h2>
-          <p className="text-gray-600">{reviews.length} ביקורות סה"כ</p>
+          <p className="text-gray-600">
+            {pending.length} חדשות · {approved.length} מאושרות · {featuredCount} מומלצות
+          </p>
         </div>
         <Button onClick={() => setShowAdd((s) => !s)}>
           {showAdd ? <X className="w-4 h-4 ml-1" /> : <Plus className="w-4 h-4 ml-1" />}
@@ -163,22 +177,31 @@ function Reviews() {
                   קטגוריה: {PRODUCT_CATEGORIES.find((c) => c.id === r.productCategory)?.name ?? r.productCategory}
                 </p>
               )}
-              <div className="flex gap-2 pt-2 border-t border-primary-soft">
+              <div className="flex gap-2 pt-2 border-t border-primary-soft flex-wrap">
                 {r.status === 'pending' ? (
                   <Button size="sm" onClick={() => handleApprove(r)}>
                     <Check className="w-4 h-4 ml-1" /> אשר
                   </Button>
                 ) : (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleToggleFeatured(r)}
-                  >
-                    <Star
-                      className={`w-4 h-4 ml-1 ${r.featured ? 'fill-twine text-twine' : ''}`}
-                    />
-                    {r.featured ? 'בטל מומלצת' : 'סמן כמומלצת'}
-                  </Button>
+                  <>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleToggleFeatured(r)}
+                    >
+                      <Star
+                        className={`w-4 h-4 ml-1 ${r.featured ? 'fill-twine text-twine' : ''}`}
+                      />
+                      {r.featured ? 'בטל מומלצת' : 'סמן כמומלצת'}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleUnapprove(r)}
+                    >
+                      <X className="w-4 h-4 ml-1" /> בטל אישור
+                    </Button>
+                  </>
                 )}
                 <Button
                   size="sm"

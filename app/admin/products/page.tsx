@@ -15,12 +15,8 @@ import {
 import { Button } from '@/components/ui/button'
 import ProtectedRoute from '@/components/admin/ProtectedRoute'
 import { getAllDocuments, updateDocument, deleteDocument } from '@/lib/db'
-import { PRODUCT_CATEGORIES } from '@/lib/constants'
+import { getMergedCategories, type MergedCategory } from '@/lib/categories'
 import type { Product } from '@/lib/types'
-
-function categoryName(id: string): string {
-  return PRODUCT_CATEGORIES.find((c) => c.id === id)?.name ?? id
-}
 
 export default function AdminProductsPage() {
   return (
@@ -32,11 +28,18 @@ export default function AdminProductsPage() {
 
 function Products() {
   const [products, setProducts] = useState<Product[]>([])
+  const [categories, setCategories] = useState<MergedCategory[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     load()
+    getMergedCategories()
+      .then(setCategories)
+      .catch(() => setCategories([]))
   }, [])
+
+  const categoryName = (id: string): string =>
+    categories.find((c) => c.slug === id)?.name ?? id
 
   const load = async () => {
     setLoading(true)
@@ -85,11 +88,11 @@ function Products() {
 
   return (
     <div dir="rtl">
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div>
           <h2 className="text-2xl font-bold text-text-dark mb-1">ניהול מוצרים</h2>
           <p className="text-gray-600">
-            {products.length > 0 && `${products.length} מוצרים`}
+            {products.length} מוצרים סה״כ · {products.filter((p) => p.isActive).length} פעילים · {products.filter((p) => p.isFeatured).length} מומלצים
           </p>
         </div>
         <Link href="/admin/products/new">
@@ -144,8 +147,18 @@ function Products() {
               <div className="p-4 space-y-2">
                 <h3 className="font-bold text-text-dark truncate">{p.name}</h3>
                 <p className="text-xs text-gray-500">{categoryName(p.category)}</p>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-bold text-accent">₪{p.startingPrice}</span>
+                <div className="flex items-center justify-between text-sm flex-wrap gap-1">
+                  <div className="flex flex-col">
+                    {p.pricePerUnit != null && (
+                      <span className="font-bold text-accent">₪{p.pricePerUnit} ליחידה</span>
+                    )}
+                    {p.packagePrice != null && (
+                      <span className="font-bold text-twine">₪{p.packagePrice} לחבילה</span>
+                    )}
+                    {p.pricePerUnit == null && p.packagePrice == null && (
+                      <span className="font-bold text-accent">₪{p.startingPrice}</span>
+                    )}
+                  </div>
                   <span className="text-gray-500">מינ' {p.minQuantity}</span>
                 </div>
                 <div className="flex gap-1 pt-2 border-t border-primary-soft">

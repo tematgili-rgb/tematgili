@@ -115,12 +115,16 @@ function Leads() {
 
   return (
     <div dir="rtl">
-      <div className="mb-6">
+      <div className="mb-4">
         <h2 className="text-2xl font-bold text-text-dark mb-1">ניהול לידים</h2>
-        <p className="text-gray-600">פניות לקוחות {leads.length > 0 && `(${leads.length})`}</p>
+        <p className="text-gray-600">
+          {leads.filter((l) => l.status === 'new').length} חדשים ·{' '}
+          {leads.filter((l) => l.status === 'answered' || l.status === 'called_no_answer').length} בטיפול ·{' '}
+          {leads.filter((l) => l.status === 'closed_deal').length} סגורים · סה״כ {leads.length}
+        </p>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-lg p-4 mb-6 flex flex-col sm:flex-row gap-3">
+      <div className="bg-white rounded-2xl shadow-lg p-4 mb-4 flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
           <Input
@@ -130,18 +134,33 @@ function Leads() {
             className="pr-10"
           />
         </div>
-        <select
-          className="h-10 rounded-2xl border-2 border-gray-200 bg-white px-3 text-sm text-text-dark focus:border-primary focus:outline-none"
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
+      </div>
+
+      {/* Status filter chips */}
+      <div className="flex gap-2 flex-wrap mb-6">
+        <button
+          onClick={() => setStatusFilter('all')}
+          className={`px-4 py-2 rounded-2xl text-sm font-medium transition-colors ${
+            statusFilter === 'all' ? 'bg-primary text-white' : 'bg-white text-text-dark shadow'
+          }`}
         >
-          <option value="all">כל הסטטוסים</option>
-          {LEAD_STATUSES.map((s) => (
-            <option key={s.value} value={s.value}>
-              {s.label}
-            </option>
-          ))}
-        </select>
+          הכל ({leads.length})
+        </button>
+        {LEAD_STATUSES.map((s) => {
+          const count = leads.filter((l) => l.status === s.value).length
+          const active = statusFilter === s.value
+          return (
+            <button
+              key={s.value}
+              onClick={() => setStatusFilter(s.value)}
+              className={`px-4 py-2 rounded-2xl text-sm font-medium transition-colors ${
+                active ? 'bg-primary text-white' : 'bg-white text-text-dark shadow'
+              }`}
+            >
+              {s.label} ({count})
+            </button>
+          )
+        })}
       </div>
 
       {loading ? (
