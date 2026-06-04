@@ -229,15 +229,6 @@ function Images() {
         </Button>
       </div>
 
-      <div className="bg-cream border-2 border-twine rounded-2xl p-4 mb-6 text-sm text-text-dark">
-        <p className="font-bold mb-1">⚠️ שים לב — Firebase Storage עדיין לא הופעל</p>
-        <p>
-          להעלאת תמונות חדשות ולתיוג שלהן צריך להפעיל את שירות ה-Storage ב-Firebase Console
-          (פרויקט <span className="font-mono">tematgili-69d5f</span> → Storage → Get started).
-          בינתיים אפשר לבחור מהתמונות הקיימות בגלריה ולתייג תמונות שכבר נטענו ל-Firestore.
-        </p>
-      </div>
-
       {/* Tabs */}
       <div className="flex gap-2 flex-wrap mb-6">
         {CATEGORIES.map((cat) => {

@@ -28,10 +28,10 @@ const navItems = [
   { icon: LayoutDashboard, label: 'דשבורד', href: '/admin' },
   { icon: Users, label: 'לידים', href: '/admin/leads' },
   { icon: PackageIcon, label: 'מוצרים', href: '/admin/products' },
-  { icon: Tag, label: 'קטגוריות', href: '/admin/categories' },
   { icon: Gift, label: 'חבילות', href: '/admin/packages' },
-  { icon: Star, label: 'ביקורות', href: '/admin/reviews' },
+  { icon: Tag, label: 'קטגוריות', href: '/admin/categories' },
   { icon: ImageIcon, label: 'תמונות', href: '/admin/images' },
+  { icon: Star, label: 'ביקורות', href: '/admin/reviews' },
   { icon: Type, label: 'פונטים', href: '/admin/fonts' },
   { icon: SettingsIcon, label: 'הגדרות', href: '/admin/settings' },
 ]
