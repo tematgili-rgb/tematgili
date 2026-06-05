@@ -60,7 +60,7 @@ export default async function GalleryStrip() {
                 alt={`גלריה ${idx + 1}`}
                 fill
                 sizes="(max-width: 1024px) 50vw, 25vw"
-                className="object-contain transition-transform duration-300"
+                className="object-cover transition-transform duration-300"
               />
             </Link>
           ))}

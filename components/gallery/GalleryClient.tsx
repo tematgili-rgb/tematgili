@@ -98,18 +98,15 @@ export default function GalleryClient({ items }: Props) {
       )}
 
       <Dialog open={!!openItem} onOpenChange={(o) => !o && setOpenItem(null)}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-[90vw] max-h-[90vh] p-2 flex items-center justify-center">
           <DialogTitle className="sr-only">{openItem?.alt || 'תמונה'}</DialogTitle>
           {openItem && (
-            <div className="relative w-full" style={{ aspectRatio: '3/4' }}>
-              <Image
-                src={openItem.url}
-                alt={openItem.alt}
-                fill
-                sizes="(max-width: 768px) 100vw, 768px"
-                className="object-contain rounded-xl"
-              />
-            </div>
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={openItem.url}
+              alt={openItem.alt}
+              className="max-w-full max-h-[85vh] object-contain rounded-xl"
+            />
           )}
         </DialogContent>
       </Dialog>
