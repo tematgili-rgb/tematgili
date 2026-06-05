@@ -136,7 +136,9 @@ export default function HeroCarousel3D() {
     }
     if (slot === 1) {
       return {
-        transform: 'translate3d(calc(-50% + 270px), calc(-50% - 32px), -180px) rotateY(-32deg) scale(0.85)',
+        transform: isMobile
+          ? 'translate3d(calc(-50% + 220px), calc(-50% - 32px), -140px) rotateY(-28deg) scale(0.92)'
+          : 'translate3d(calc(-50% + 270px), calc(-50% - 32px), -180px) rotateY(-32deg) scale(0.85)',
         opacity: 0.85,
         zIndex: 20,
         transition,
@@ -144,7 +146,9 @@ export default function HeroCarousel3D() {
     }
     if (slot === -1) {
       return {
-        transform: 'translate3d(calc(-50% - 270px), calc(-50% - 32px), -180px) rotateY(32deg) scale(0.85)',
+        transform: isMobile
+          ? 'translate3d(calc(-50% - 220px), calc(-50% - 32px), -140px) rotateY(28deg) scale(0.92)'
+          : 'translate3d(calc(-50% - 270px), calc(-50% - 32px), -180px) rotateY(32deg) scale(0.85)',
         opacity: 0.85,
         zIndex: 20,
         transition,
