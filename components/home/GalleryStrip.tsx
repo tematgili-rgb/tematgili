@@ -53,7 +53,7 @@ export default async function GalleryStrip() {
             <Link
               key={idx}
               href="/gallery"
-              className="relative aspect-square rounded-2xl overflow-hidden border-2 border-white shadow-sm hover:shadow-md transition-shadow bg-primary-soft/40"
+              className="relative aspect-[4/5] rounded-2xl overflow-hidden border-2 border-white shadow-sm hover:shadow-md transition-shadow bg-primary-soft/40"
             >
               <Image
                 src={url}
