@@ -14,6 +14,8 @@ export default function HeroCarousel3D() {
   const [reduced, setReduced] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null)
+  const SWIPE_THRESHOLD = 50
 
   useEffect(() => {
     getCarouselItems()
@@ -70,6 +72,46 @@ export default function HeroCarousel3D() {
   const goTo = (i: number) => {
     setActive(i)
     if (!reduced) startInterval()
+  }
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0]
+    touchStartRef.current = { x: t.clientX, y: t.clientY }
+  }
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (!touchStartRef.current) return
+    const t = e.touches[0]
+    const dx = t.clientX - touchStartRef.current.x
+    const dy = t.clientY - touchStartRef.current.y
+    // If horizontal intent dominates, prevent the page from scrolling
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10 && e.cancelable) {
+      e.preventDefault()
+    }
+  }
+
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const start = touchStartRef.current
+    touchStartRef.current = null
+    if (!start || N === 0) return
+    const t = e.changedTouches[0]
+    const dx = t.clientX - start.x
+    const dy = t.clientY - start.y
+    if (Math.abs(dx) < SWIPE_THRESHOLD) return
+    if (Math.abs(dy) > Math.abs(dx)) return // vertical scroll
+    // RTL-agnostic: swipe LEFT (dx < 0) → next; swipe RIGHT (dx > 0) → prev
+    if (dx < 0) {
+      goTo((active + 1) % N)
+    } else {
+      goTo((active - 1 + N) % N)
+    }
+  }
+
+  const onCardKeyDown = (e: React.KeyboardEvent, i: number) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      goTo(i)
+    }
   }
 
   // Normalize delta to range [-floor(N/2), ceil(N/2)-1] so each card picks the shortest visual path.
@@ -170,11 +212,14 @@ export default function HeroCarousel3D() {
 
   return (
     <div
-      className="relative w-full h-[360px] md:h-[440px] lg:h-[460px] flex items-center justify-center"
+      className="relative w-full h-[360px] md:h-[440px] lg:h-[460px] flex items-center justify-center touch-pan-y"
       role="region"
       aria-roledescription="קרוסלה"
       aria-label="המוצרים שלנו"
       style={{ perspective: '1400px' }}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
     >
       <div
         className="relative w-full h-full"
@@ -187,7 +232,12 @@ export default function HeroCarousel3D() {
             <div
               key={item.id}
               aria-hidden={!isActive}
-              className="absolute top-1/2 left-1/2 w-[260px] h-[340px] md:w-[320px] md:h-[420px] lg:w-[400px] lg:h-[520px] flex items-center justify-center"
+              role={isActive ? undefined : 'button'}
+              aria-label={isActive ? undefined : `הצג ${item.tag}`}
+              tabIndex={isActive ? -1 : 0}
+              onClick={isActive ? undefined : () => goTo(i)}
+              onKeyDown={isActive ? undefined : (e) => onCardKeyDown(e, i)}
+              className={`absolute top-1/2 left-1/2 w-[260px] h-[340px] md:w-[320px] md:h-[420px] lg:w-[400px] lg:h-[520px] flex items-center justify-center ${isActive ? '' : 'cursor-pointer'}`}
               style={{ ...transformFor(slot), transformStyle: 'preserve-3d', willChange: 'transform, opacity' }}
             >
               {isActive && (
