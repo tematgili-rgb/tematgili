@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Edit, Eye, EyeOff, ImagePlus, Loader2, Plus, Trash2, X, Check } from 'lucide-react'
+import { Edit, Eye, EyeOff, Loader2, Plus, Trash2, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -13,16 +13,16 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog'
 import ProtectedRoute from '@/components/admin/ProtectedRoute'
-import ImagePickerDialog from '@/components/admin/ImagePickerDialog'
 import {
   createDocument,
   updateDocument,
   deleteDocument,
   getAllCategoriesAdmin,
   getAllDocuments,
+  getAllGalleryImages,
 } from '@/lib/db'
 import { PRODUCT_CATEGORIES } from '@/lib/constants'
-import type { Category, Product } from '@/lib/types'
+import type { Category, GalleryImage, Product } from '@/lib/types'
 
 function slugify(input: string): string {
   return input
@@ -46,7 +46,6 @@ interface DisplayCategory {
   slug: string
   name: string
   icon: string
-  imageUrls: string[]
   sortOrder: number
   isActive: boolean
   isBuiltIn: boolean
@@ -55,6 +54,7 @@ interface DisplayCategory {
 function Categories() {
   const [items, setItems] = useState<DisplayCategory[]>([])
   const [products, setProducts] = useState<Product[]>([])
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([])
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState<DisplayCategory | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -73,7 +73,6 @@ function Categories() {
           slug: inDb.slug,
           name: inDb.name,
           icon: inDb.icon,
-          imageUrls: inDb.imageUrls ?? [],
           sortOrder: inDb.sortOrder ?? i,
           isActive: inDb.isActive ?? true,
           isBuiltIn: true,
@@ -88,7 +87,6 @@ function Categories() {
         slug: c.slug,
         name: c.name,
         icon: c.icon,
-        imageUrls: c.imageUrls ?? [],
         sortOrder: c.sortOrder ?? 99,
         isActive: c.isActive ?? true,
         isBuiltIn: !!c.isBuiltIn,
@@ -116,7 +114,6 @@ function Categories() {
                 slug: b.id,
                 name: b.name,
                 icon: b.icon,
-                imageUrls: [],
                 sortOrder: i >= 0 ? i : idx,
                 isActive: true,
                 isBuiltIn: true,
@@ -128,7 +125,9 @@ function Categories() {
       }
 
       const prods = await getAllDocuments<Product>('products').catch(() => [])
+      const gallery = await getAllGalleryImages().catch(() => [])
       setProducts(prods)
+      setGalleryImages(gallery)
       setItems(buildDisplay(fromDb))
     } catch (e) {
       console.error(e)
@@ -149,6 +148,13 @@ function Categories() {
     productsBySlug.set(p.category, list)
   }
 
+  const galleryBySlug = new Map<string, GalleryImage[]>()
+  for (const g of galleryImages) {
+    const list = galleryBySlug.get(g.category) ?? []
+    list.push(g)
+    galleryBySlug.set(g.category, list)
+  }
+
   const flashSaved = (id: string) => {
     setSavedFlash(id)
     window.setTimeout(() => {
@@ -162,7 +168,6 @@ function Categories() {
       slug: '',
       name: '',
       icon: '🎁',
-      imageUrls: [],
       sortOrder: items.length,
       isActive: true,
       isBuiltIn: false,
@@ -214,6 +219,8 @@ function Categories() {
     })
     flashSaved(saved.id)
     setDialogOpen(false)
+    // Refresh gallery counts in case the saved category slug changed
+    getAllGalleryImages().then(setGalleryImages).catch(() => {})
   }
 
   return (
@@ -238,12 +245,17 @@ function Categories() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map((cat) => {
             const catProducts = productsBySlug.get(cat.slug) ?? []
+            const catGallery = galleryBySlug.get(cat.slug) ?? []
             const productThumbs = catProducts
               .map((p) => p.mainImageUrl)
               .filter((u): u is string => !!u)
               .slice(0, 4)
+            const galleryThumbs = catGallery
+              .map((g) => g.imageUrl)
+              .filter((u): u is string => !!u)
+              .slice(0, 4)
             const thumbs =
-              productThumbs.length > 0 ? productThumbs : cat.imageUrls.slice(0, 4)
+              productThumbs.length > 0 ? productThumbs : galleryThumbs
             const isFlashing = savedFlash === cat.id
 
             return (
@@ -277,7 +289,7 @@ function Categories() {
                     {catProducts.length} מוצרים
                   </span>
                   <span className="bg-cream text-text-dark px-2 py-1 rounded-full">
-                    {cat.imageUrls.length} תמונות
+                    {catGallery.length} תמונות
                   </span>
                 </div>
 
@@ -354,10 +366,8 @@ function CategoryEditDialog({ open, onOpenChange, editing, onSaved }: DialogProp
   const [slug, setSlug] = useState('')
   const [slugTouched, setSlugTouched] = useState(false)
   const [icon, setIcon] = useState('🎁')
-  const [imageUrls, setImageUrls] = useState<string[]>([])
   const [sortOrder, setSortOrder] = useState(0)
   const [isActive, setIsActive] = useState(true)
-  const [pickerOpen, setPickerOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -367,7 +377,6 @@ function CategoryEditDialog({ open, onOpenChange, editing, onSaved }: DialogProp
     setSlug(editing.slug)
     setSlugTouched(true)
     setIcon(editing.icon || '🎁')
-    setImageUrls(editing.imageUrls ?? [])
     setSortOrder(editing.sortOrder)
     setIsActive(editing.isActive)
     setError(null)
@@ -378,19 +387,6 @@ function CategoryEditDialog({ open, onOpenChange, editing, onSaved }: DialogProp
   }, [name, slugTouched])
 
   if (!editing) return null
-
-  const handlePickImages = (urls: string | string[]) => {
-    const arr = Array.isArray(urls) ? urls : [urls]
-    setImageUrls((prev) => {
-      const merged = [...prev]
-      for (const u of arr) if (u && !merged.includes(u)) merged.push(u)
-      return merged
-    })
-  }
-
-  const removeImage = (u: string) => {
-    setImageUrls((prev) => prev.filter((x) => x !== u))
-  }
 
   const handleSave = async () => {
     if (!name.trim()) {
@@ -404,11 +400,10 @@ function CategoryEditDialog({ open, onOpenChange, editing, onSaved }: DialogProp
     setSaving(true)
     setError(null)
     try {
-      const payload: Omit<Category, 'id' | 'createdAt'> = {
+      const payload: Omit<Category, 'id' | 'createdAt' | 'imageUrls'> = {
         name: name.trim(),
         slug: slug.trim(),
         icon: icon || '🎁',
-        imageUrls,
         sortOrder: Number(sortOrder),
         isActive,
         isBuiltIn: editing.isBuiltIn,
@@ -424,7 +419,6 @@ function CategoryEditDialog({ open, onOpenChange, editing, onSaved }: DialogProp
         slug: payload.slug,
         name: payload.name,
         icon: payload.icon,
-        imageUrls: payload.imageUrls,
         sortOrder: payload.sortOrder,
         isActive: payload.isActive,
         isBuiltIn: !!payload.isBuiltIn,
@@ -443,7 +437,7 @@ function CategoryEditDialog({ open, onOpenChange, editing, onSaved }: DialogProp
         <DialogHeader>
           <DialogTitle>{editing.id ? 'ערוך קטגוריה' : 'קטגוריה חדשה'}</DialogTitle>
           <DialogDescription>
-            {editing.isBuiltIn ? 'קטגוריה מובנית — ניתן לערוך תמונות ושם.' : 'קטגוריה מותאמת אישית.'}
+            {editing.isBuiltIn ? 'קטגוריה מובנית — ניתן לערוך שם ואייקון.' : 'קטגוריה מותאמת אישית.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -492,38 +486,6 @@ function CategoryEditDialog({ open, onOpenChange, editing, onSaved }: DialogProp
             </div>
           </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <Label>תמונות הקטגוריה</Label>
-              <Button type="button" variant="outline" size="sm" onClick={() => setPickerOpen(true)}>
-                <ImagePlus className="w-4 h-4 ml-1" /> בחר תמונות
-              </Button>
-            </div>
-            {imageUrls.length > 0 ? (
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                {imageUrls.map((u) => (
-                  <div key={u} className="relative">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={u}
-                      alt=""
-                      className="w-full h-20 object-cover rounded-2xl border-2 border-primary-soft"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeImage(u)}
-                      className="absolute -top-2 -left-2 bg-accent text-white rounded-full p-1"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-gray-500">לא נבחרו תמונות</p>
-            )}
-          </div>
-
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
@@ -546,14 +508,6 @@ function CategoryEditDialog({ open, onOpenChange, editing, onSaved }: DialogProp
             </Button>
           </div>
         </div>
-
-        <ImagePickerDialog
-          open={pickerOpen}
-          onOpenChange={setPickerOpen}
-          mode="multiple"
-          onPick={handlePickImages}
-          currentUrls={imageUrls}
-        />
       </DialogContent>
     </Dialog>
   )

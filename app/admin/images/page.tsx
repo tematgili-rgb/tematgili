@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Image as ImageIcon,
   Trash2,
@@ -8,6 +8,7 @@ import {
   EyeOff,
   Loader2,
   Database,
+  RefreshCw,
 } from 'lucide-react'
 import { Timestamp } from 'firebase/firestore'
 import { Button } from '@/components/ui/button'
@@ -23,6 +24,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog'
 import { getAllDocuments, createDocument, updateDocument, deleteDocument } from '@/lib/db'
+import { uploadFile, deleteFile } from '@/lib/storage'
 import { staticImagesFor } from '@/lib/staticImages'
 import { getMergedCategories, type MergedCategory } from '@/lib/categories'
 import type { SiteImage } from '@/lib/types'
@@ -31,10 +33,9 @@ const categoryLabels: Record<SiteImage['category'], string> = {
   logo: 'לוגו',
   gallery: 'גלריית עבודות',
   about: 'אודות',
-  packages: 'חבילות',
 }
 
-const CATEGORIES: SiteImage['category'][] = ['logo', 'gallery', 'about', 'packages']
+const CATEGORIES: SiteImage['category'][] = ['logo', 'gallery', 'about']
 
 const staticFor = staticImagesFor
 
@@ -65,6 +66,10 @@ function Images() {
   const [pendingTags, setPendingTags] = useState<string[]>([])
   const [savingTags, setSavingTags] = useState(false)
   const [tagMessage, setTagMessage] = useState<string | null>(null)
+  const [replacingId, setReplacingId] = useState<string | null>(null)
+  const [replacedId, setReplacedId] = useState<string | null>(null)
+  const pendingReplaceIdRef = useRef<string | null>(null)
+  const replaceInputRef = useRef<HTMLInputElement | null>(null)
 
   const togglePill = (id: string) => {
     setPendingTags((prev) =>
@@ -206,11 +211,59 @@ function Images() {
     }
   }
 
+  const triggerReplace = (img: SiteImage) => {
+    if (img.id.startsWith('static-')) return
+    pendingReplaceIdRef.current = img.id
+    replaceInputRef.current?.click()
+  }
+
+  const handleReplaceFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    const id = pendingReplaceIdRef.current
+    pendingReplaceIdRef.current = null
+    if (replaceInputRef.current) replaceInputRef.current.value = ''
+    if (!file || !id) return
+    const target = images.find((i) => i.id === id)
+    if (!target) return
+    const oldUrl = target.imageUrl
+    setReplacingId(id)
+    try {
+      const ext = file.name.split('.').pop() || 'jpg'
+      const newUrl = await uploadFile(
+        file,
+        `siteImages/${target.category}/replace-${Date.now()}.${ext}`
+      )
+      await updateDocument<SiteImage>('siteImages', id, { imageUrl: newUrl })
+      setImages((prev) => prev.map((i) => (i.id === id ? { ...i, imageUrl: newUrl } : i)))
+      try {
+        await deleteFile(oldUrl)
+      } catch (cleanupErr) {
+        console.warn('Old image cleanup skipped:', cleanupErr)
+      }
+      setReplacedId(id)
+      setTimeout(() => {
+        setReplacedId((curr) => (curr === id ? null : curr))
+      }, 2000)
+    } catch (err) {
+      console.error(err)
+      alert('שגיאה בהחלפת תמונה')
+    } finally {
+      setReplacingId(null)
+    }
+  }
+
   const firestoreForCategory = images.filter((i) => i.category === activeCategory)
   const filtered = [...firestoreForCategory, ...staticFor(activeCategory)]
 
   return (
     <div dir="rtl">
+      <input
+        ref={replaceInputRef}
+        type="file"
+        accept="image/*"
+        hidden
+        onChange={handleReplaceFile}
+      />
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
           <h2 className="text-2xl font-bold text-text-dark mb-1">ניהול תמונות</h2>
@@ -302,13 +355,23 @@ function Images() {
                   סטטי
                 </span>
               )}
-              <div className="aspect-square bg-primary-soft/20">
+              {replacedId === img.id && (
+                <span className="bg-primary text-text-dark text-xs px-2 py-1 rounded-full absolute top-2 left-2 z-10 animate-pulse">
+                  הוחלף
+                </span>
+              )}
+              <div className="aspect-square bg-primary-soft/20 relative">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={img.imageUrl}
                   alt={img.name}
                   className="w-full h-full object-contain p-2"
                 />
+                {replacingId === img.id && (
+                  <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  </div>
+                )}
               </div>
               <div className="p-3 space-y-2">
                 <p className="font-medium text-sm text-text-dark truncate">{img.name}</p>
@@ -327,6 +390,22 @@ function Images() {
                       <EyeOff className="w-4 h-4" />
                     ) : (
                       <Eye className="w-4 h-4" />
+                    )}
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    title="החלף תמונה"
+                    className={`flex-1 ${
+                      isStatic || replacingId === img.id ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                    disabled={isStatic || replacingId === img.id}
+                    onClick={() => triggerReplace(img)}
+                  >
+                    {replacingId === img.id ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <RefreshCw className="w-4 h-4" />
                     )}
                   </Button>
                   <Button

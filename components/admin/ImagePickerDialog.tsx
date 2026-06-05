@@ -20,7 +20,6 @@ const CATEGORY_TABS: Array<{ id: 'all' | SiteImage['category']; label: string }>
   { id: 'logo', label: 'לוגו' },
   { id: 'gallery', label: 'גלריה' },
   { id: 'about', label: 'אודות' },
-  { id: 'packages', label: 'חבילות' },
 ]
 
 type Mode = 'single' | 'multiple'

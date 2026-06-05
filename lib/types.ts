@@ -54,7 +54,7 @@ export interface Review {
 
 export interface SiteImage {
   id: string
-  category: 'logo' | 'gallery' | 'about' | 'packages'
+  category: 'logo' | 'gallery' | 'about'
   name: string
   imageUrl: string
   isActive: boolean
@@ -116,7 +116,8 @@ export interface Category {
   slug: string
   name: string
   icon: string
-  imageUrls: string[]
+  /** @deprecated — gallery images are now tracked in the `gallery` collection. */
+  imageUrls?: string[]
   sortOrder: number
   isActive: boolean
   isBuiltIn?: boolean

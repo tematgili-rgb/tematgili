@@ -40,13 +40,10 @@ const STATIC_ABOUT: SiteImage[] = ABOUT_URLS.map((a, i) => ({
   createdAt: new Date(),
 } as SiteImage))
 
-const STATIC_PACKAGES: SiteImage[] = []
-
 export function staticImagesFor(cat: SiteImage['category']): SiteImage[] {
   if (cat === 'gallery') return STATIC_GALLERY
   if (cat === 'logo') return STATIC_LOGO
   if (cat === 'about') return STATIC_ABOUT
-  if (cat === 'packages') return STATIC_PACKAGES
   return []
 }
 
@@ -55,6 +52,5 @@ export function getStaticSiteImages(): SiteImage[] {
     ...STATIC_LOGO,
     ...STATIC_GALLERY,
     ...STATIC_ABOUT,
-    ...STATIC_PACKAGES,
   ]
 }
