@@ -1,12 +1,13 @@
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
+import Link from 'next/link'
 import type { Metadata } from 'next'
-import { Check } from 'lucide-react'
 import Breadcrumbs from '@/components/common/Breadcrumbs'
 import LeadFormInline from '@/components/forms/LeadFormInline'
 import WhatsAppButton from '@/components/common/WhatsAppButton'
 import PhoneButton from '@/components/common/PhoneButton'
-import { getPackageBySlug } from '@/lib/db'
+import { getPackageBySlug, getDocument } from '@/lib/db'
+import type { Product } from '@/lib/types'
 
 async function fetchPackage(slug: string) {
   try {
@@ -37,6 +38,15 @@ export async function generateMetadata({
 export default async function PackageDetailPage({ params }: { params: { slug: string } }) {
   const pkg = await fetchPackage(params.slug)
   if (!pkg) notFound()
+
+  const includedProductIds = pkg.includedProducts ?? []
+  const includedProducts: Product[] = (
+    await Promise.all(
+      includedProductIds.map((id) =>
+        getDocument<Product>('products', id).catch(() => null)
+      )
+    )
+  ).filter((p): p is Product => p !== null)
 
   const waMessage = `היי! אני מתעניין/ת בחבילה "${pkg.name}". אשמח לקבל פרטים נוספים.`
 
@@ -83,14 +93,34 @@ export default async function PackageDetailPage({ params }: { params: { slug: st
               </span>
             </div>
 
-            {pkg.includedItems?.length > 0 && (
+            {includedProducts.length > 0 && (
               <div>
                 <h2 className="font-bold text-text-dark mb-3">מה כלול בחבילה:</h2>
-                <ul className="space-y-2">
-                  {pkg.includedItems.map((item, i) => (
-                    <li key={i} className="flex items-start gap-2 text-text-dark/80">
-                      <Check className="h-5 w-5 text-accent shrink-0 mt-0.5" />
-                      <span>{item}</span>
+                <ul className="space-y-3">
+                  {includedProducts.map((p) => (
+                    <li key={p.id}>
+                      <Link
+                        href={`/products/${p.slug}`}
+                        className="flex items-center gap-3 p-3 rounded-2xl border-2 border-primary-soft hover:border-primary transition"
+                      >
+                        <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-primary-soft/40 shrink-0">
+                          {p.mainImageUrl && (
+                            <Image
+                              src={p.mainImageUrl}
+                              alt={p.name}
+                              fill
+                              sizes="56px"
+                              className="object-cover"
+                            />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-text-dark truncate">{p.name}</p>
+                          <p className="text-sm text-accent font-semibold">
+                            ₪{p.startingPrice} ליחידה
+                          </p>
+                        </div>
+                      </Link>
                     </li>
                   ))}
                 </ul>

@@ -109,7 +109,7 @@ function Packages() {
                 <p className="text-sm text-gray-600 line-clamp-2">{p.description}</p>
                 <div className="flex items-center justify-between text-sm pt-2">
                   <span className="font-bold text-accent">החל מ-₪{p.startingPrice}</span>
-                  <span className="text-gray-500">{p.includedItems?.length ?? 0} פריטים</span>
+                  <span className="text-gray-500">{p.includedProducts?.length ?? 0} מוצרים</span>
                 </div>
                 <div className="flex gap-1 pt-2 border-t border-primary-soft">
                   <Button

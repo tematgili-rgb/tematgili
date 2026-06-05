@@ -2,25 +2,25 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import Image from 'next/image'
-
-const ITEMS = [
-  { name: 'חוברות צביעה',   imageUrl: '/products/coloring-book.png', slug: 'coloring-book' },
-  { name: 'עטיפות שוקולד',   imageUrl: '/products/chocolate.png',    slug: 'snack-wrap' },
-  { name: 'חטיפים ממותגים',  imageUrl: '/products/snack.png',        slug: 'snack-wrap' },
-  { name: 'קופסאות פופקורן',  imageUrl: '/products/packaging.png',    slug: 'popcorn-box' },
-  { name: 'חבילות מוכנות',   imageUrl: '/products/bundle.png',       slug: 'gift-box' },
-  { name: 'צנצנות ממותגות',  imageUrl: '/products/jar.png',          slug: 'bottle-label' },
-  { name: 'בועות סבון',      imageUrl: '/products/bubbles.png',      slug: 'party-hat' },
-]
+import { getCarouselItems } from '@/lib/db'
+import type { CarouselItem } from '@/lib/types'
 
 const ROTATE_MS = 3500
-const N = ITEMS.length
 
 export default function HeroCarousel3D() {
+  const [items, setItems] = useState<CarouselItem[]>([])
+  const [loaded, setLoaded] = useState(false)
   const [active, setActive] = useState(0)
   const [reduced, setReduced] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    getCarouselItems()
+      .then((list) => setItems(list))
+      .catch(() => setItems([]))
+      .finally(() => setLoaded(true))
+  }, [])
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -37,8 +37,11 @@ export default function HeroCarousel3D() {
     }
   }, [])
 
+  const N = items.length
+
   const startInterval = () => {
     if (intervalRef.current) clearInterval(intervalRef.current)
+    if (N === 0) return
     intervalRef.current = setInterval(() => {
       if (document.hidden) return
       setActive(a => (a + 1) % N)
@@ -46,7 +49,7 @@ export default function HeroCarousel3D() {
   }
 
   useEffect(() => {
-    if (reduced) return
+    if (reduced || N === 0) return
     startInterval()
     const onVis = () => {
       if (document.hidden && intervalRef.current) {
@@ -61,7 +64,8 @@ export default function HeroCarousel3D() {
       document.removeEventListener('visibilitychange', onVis)
       if (intervalRef.current) clearInterval(intervalRef.current)
     }
-  }, [reduced])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reduced, N])
 
   const goTo = (i: number) => {
     setActive(i)
@@ -70,6 +74,7 @@ export default function HeroCarousel3D() {
 
   // Normalize delta to range [-floor(N/2), ceil(N/2)-1] so each card picks the shortest visual path.
   const slotFor = (i: number) => {
+    if (N === 0) return 0
     let delta = ((i - active) % N + N) % N
     if (delta > Math.floor(N / 2)) delta -= N
     return delta
@@ -136,7 +141,32 @@ export default function HeroCarousel3D() {
     }
   }
 
-  const liveText = `מוצר ${active + 1} מתוך ${N}: ${ITEMS[active].name}`
+  if (loaded && N === 0) {
+    return (
+      <div
+        className="relative w-full h-[360px] md:h-[440px] lg:h-[460px] flex items-center justify-center"
+        role="region"
+        aria-label="קרוסלת המוצרים"
+      >
+        <div className="text-center text-text-dark/60 max-w-xs">
+          <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-primary-soft/60 flex items-center justify-center text-3xl">
+            ✨
+          </div>
+          <p className="text-sm">הקרוסלה תוצג כאן ברגע שיתווספו פריטים בניהול האתר.</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!loaded) {
+    return (
+      <div className="relative w-full h-[360px] md:h-[440px] lg:h-[460px] flex items-center justify-center">
+        <div className="animate-pulse w-[260px] h-[340px] md:w-[320px] md:h-[420px] lg:w-[400px] lg:h-[520px] rounded-2xl bg-primary-soft/40" />
+      </div>
+    )
+  }
+
+  const liveText = `מוצר ${active + 1} מתוך ${N}: ${items[active]?.tag ?? ''}`
 
   return (
     <div
@@ -150,12 +180,12 @@ export default function HeroCarousel3D() {
         className="relative w-full h-full"
         style={{ perspective: '1400px', transformStyle: 'preserve-3d' }}
       >
-        {ITEMS.map((item, i) => {
+        {items.map((item, i) => {
           const slot = slotFor(i)
           const isActive = slot === 0
           return (
             <div
-              key={item.slug}
+              key={item.id}
               aria-hidden={!isActive}
               className="absolute top-1/2 left-1/2 w-[260px] h-[340px] md:w-[320px] md:h-[420px] lg:w-[400px] lg:h-[520px] flex items-center justify-center"
               style={{ ...transformFor(slot), transformStyle: 'preserve-3d', willChange: 'transform, opacity' }}
@@ -168,7 +198,7 @@ export default function HeroCarousel3D() {
               )}
               <Image
                 src={item.imageUrl}
-                alt={item.name}
+                alt={item.tag}
                 width={600}
                 height={600}
                 priority={i === 0}
@@ -180,23 +210,23 @@ export default function HeroCarousel3D() {
         })}
       </div>
 
-      {ITEMS.map((item, i) => (
+      {items.map((item, i) => (
         <div
-          key={`label-${item.slug}`}
+          key={`label-${item.id}`}
           aria-hidden={i !== active}
           className={`absolute bottom-8 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-white/90 backdrop-blur text-text-dark text-sm font-semibold shadow-md transition-opacity duration-500 ${i === active ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         >
-          {item.name}
+          {item.tag}
         </div>
       ))}
 
       <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-2">
-        {ITEMS.map((item, i) => (
+        {items.map((item, i) => (
           <button
-            key={item.slug}
+            key={item.id}
             type="button"
             onClick={() => goTo(i)}
-            aria-label={item.name}
+            aria-label={item.tag}
             className={`h-2 rounded-full transition-all duration-300 ${i === active ? 'bg-accent w-6' : 'bg-text-dark/20 w-2 hover:bg-text-dark/40'}`}
           />
         ))}

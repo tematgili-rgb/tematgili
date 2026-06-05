@@ -1,7 +1,7 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { Phone, Mail, MessageCircle, Clock } from 'lucide-react'
 import { CONTACT_INFO } from '@/lib/constants'
+import LogoImage from '@/components/common/LogoImage'
 
 function InstagramIcon({ className }: { className?: string }) {
   return (
@@ -43,8 +43,7 @@ export default function Footer() {
       <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
         <div>
           <Link href="/" className="inline-block bg-white rounded-2xl p-3 mb-2" aria-label="תמתגילי - עמוד הבית">
-            <Image
-              src="/logo.png"
+            <LogoImage
               alt="תמתגילי"
               width={918}
               height={314}

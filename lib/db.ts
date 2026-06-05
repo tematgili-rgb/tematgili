@@ -18,6 +18,7 @@ import {
   Firestore,
 } from 'firebase/firestore'
 import { db, isFirebaseConfigured } from './firebase'
+import { deleteFile } from './storage'
 import type {
   Product,
   Lead,
@@ -27,6 +28,8 @@ import type {
   Package,
   ProductCategoryId,
   Category,
+  GalleryImage,
+  CarouselItem,
 } from './types'
 
 export const COLLECTIONS = {
@@ -37,6 +40,8 @@ export const COLLECTIONS = {
   packages: 'packages',
   settings: 'settings',
   categories: 'categories',
+  gallery: 'gallery',
+  homeCarousel: 'homeCarousel',
 } as const
 
 function ensureFirebase(): Firestore {
@@ -226,6 +231,67 @@ export async function getActiveCategories(): Promise<Category[]> {
 export async function getAllCategoriesAdmin(): Promise<Category[]> {
   const all = await getAllDocuments<Category>(COLLECTIONS.categories)
   return all.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+}
+
+// Gallery (product images library)
+export async function getAllGalleryImages(): Promise<GalleryImage[]> {
+  const items = await getAllDocuments<GalleryImage>(COLLECTIONS.gallery)
+  return items.sort((a, b) => {
+    const ta = a.createdAt instanceof Date ? a.createdAt.getTime() : (a.createdAt as any)?.toMillis?.() ?? 0
+    const tb = b.createdAt instanceof Date ? b.createdAt.getTime() : (b.createdAt as any)?.toMillis?.() ?? 0
+    return tb - ta
+  })
+}
+
+export async function getGalleryByCategory(category: string): Promise<GalleryImage[]> {
+  return queryDocuments<GalleryImage>(
+    COLLECTIONS.gallery,
+    [{ field: 'category', op: '==', value: category }]
+  )
+}
+
+export async function createGalleryImage(
+  data: Omit<GalleryImage, 'id' | 'createdAt'>
+): Promise<string> {
+  return createDocument(COLLECTIONS.gallery, data)
+}
+
+export async function deleteGalleryImage(id: string, imageUrl: string): Promise<void> {
+  // Best-effort storage cleanup. External URLs (not Firebase Storage) will throw — swallow.
+  try {
+    if (imageUrl) await deleteFile(imageUrl)
+  } catch (e) {
+    console.warn('Storage delete skipped:', e)
+  }
+  await deleteDocument(COLLECTIONS.gallery, id)
+}
+
+// Home carousel
+export async function getCarouselItems(): Promise<CarouselItem[]> {
+  const items = await getAllDocuments<CarouselItem>(COLLECTIONS.homeCarousel)
+  return items.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+}
+
+export async function createCarouselItem(
+  data: Omit<CarouselItem, 'id' | 'createdAt'>
+): Promise<string> {
+  return createDocument(COLLECTIONS.homeCarousel, data)
+}
+
+export async function updateCarouselItem(
+  id: string,
+  data: Partial<CarouselItem>
+): Promise<void> {
+  return updateDocument<CarouselItem>(COLLECTIONS.homeCarousel, id, data)
+}
+
+export async function deleteCarouselItem(id: string, imageUrl: string): Promise<void> {
+  try {
+    if (imageUrl) await deleteFile(imageUrl)
+  } catch (e) {
+    console.warn('Storage delete skipped:', e)
+  }
+  await deleteDocument(COLLECTIONS.homeCarousel, id)
 }
 
 export async function getSettings(): Promise<Settings | null> {

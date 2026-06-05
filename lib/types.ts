@@ -54,12 +54,27 @@ export interface Review {
 
 export interface SiteImage {
   id: string
-  category: 'logo' | 'hero_carousel' | 'gallery' | 'about' | 'packages'
+  category: 'logo' | 'gallery' | 'about' | 'packages'
   name: string
   imageUrl: string
   isActive: boolean
   sortOrder: number
   tags?: string[]
+  createdAt: Timestamp | Date
+}
+
+export interface GalleryImage {
+  id: string
+  imageUrl: string
+  category: string          // product category slug, references the categories collection
+  createdAt: Timestamp | Date
+}
+
+export interface CarouselItem {
+  id: string
+  imageUrl: string
+  tag: string         // Hebrew label that appears under the image on homepage
+  order: number
   createdAt: Timestamp | Date
 }
 
@@ -89,7 +104,7 @@ export interface Package {
   description: string
   startingPrice: number
   imageUrl: string
-  includedItems: string[]
+  includedProducts: string[]   // product IDs
   eventType?: string
   isActive: boolean
   sortOrder: number

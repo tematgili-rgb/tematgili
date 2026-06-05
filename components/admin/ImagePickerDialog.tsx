@@ -18,7 +18,6 @@ import type { SiteImage } from '@/lib/types'
 const CATEGORY_TABS: Array<{ id: 'all' | SiteImage['category']; label: string }> = [
   { id: 'all', label: 'הכל' },
   { id: 'logo', label: 'לוגו' },
-  { id: 'hero_carousel', label: 'קרוסלה' },
   { id: 'gallery', label: 'גלריה' },
   { id: 'about', label: 'אודות' },
   { id: 'packages', label: 'חבילות' },

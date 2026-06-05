@@ -8,6 +8,7 @@ import { Menu, X, Phone, MessageCircle } from 'lucide-react'
 import { CONTACT_INFO } from '@/lib/constants'
 import { trackPhoneClick, trackWhatsAppClick } from '@/lib/tracking'
 import { isAuthorizedRedirect } from '@/lib/url-validation'
+import { useSiteLogo } from '@/hooks/useSiteLogo'
 
 const NAV_LINKS = [
   { href: '/', label: 'בית' },
@@ -21,6 +22,7 @@ const NAV_LINKS = [
 export default function Header() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
+  const logoSrc = useSiteLogo()
 
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname?.startsWith(href)
@@ -46,7 +48,7 @@ export default function Header() {
           className="md:hidden absolute left-1/2 -translate-x-1/2 flex items-center"
         >
           <Image
-            src="/logo.png"
+            src={logoSrc}
             alt="תמתגילי - מיתוג לאירועים ומתנות"
             width={918}
             height={314}
@@ -61,7 +63,7 @@ export default function Header() {
           className="hidden md:flex items-center shrink-0"
         >
           <Image
-            src="/logo.png"
+            src={logoSrc}
             alt="תמתגילי - מיתוג לאירועים ומתנות"
             width={918}
             height={314}
@@ -116,7 +118,7 @@ export default function Header() {
           <aside className="absolute top-0 right-0 h-full w-72 bg-white shadow-xl p-6 flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <Image
-                src="/logo.png"
+                src={logoSrc}
                 alt="תמתגילי"
                 width={918}
                 height={314}

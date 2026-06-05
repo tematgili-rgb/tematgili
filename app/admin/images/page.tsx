@@ -29,20 +29,17 @@ import type { SiteImage } from '@/lib/types'
 
 const categoryLabels: Record<SiteImage['category'], string> = {
   logo: 'לוגו',
-  hero_carousel: 'קרוסלת דף הבית',
   gallery: 'גלריית עבודות',
   about: 'אודות',
   packages: 'חבילות',
 }
 
-const CATEGORIES: SiteImage['category'][] = ['logo', 'hero_carousel', 'gallery', 'about', 'packages']
+const CATEGORIES: SiteImage['category'][] = ['logo', 'gallery', 'about', 'packages']
 
 const staticFor = staticImagesFor
 
 const SEED_IMAGES: Omit<SiteImage, 'id' | 'createdAt'>[] = [
   { category: 'logo', name: 'לוגו ראשי', imageUrl: '/assets/logo.png', isActive: true, sortOrder: 1 },
-  { category: 'hero_carousel', name: 'באנר 1', imageUrl: '/assets/hero-1.jpg', isActive: true, sortOrder: 1 },
-  { category: 'hero_carousel', name: 'באנר 2', imageUrl: '/assets/hero-2.jpg', isActive: true, sortOrder: 2 },
   { category: 'gallery', name: 'גלריה 1', imageUrl: '/assets/gallery-1.jpg', isActive: true, sortOrder: 1 },
   { category: 'about', name: 'אודות', imageUrl: '/assets/about.jpg', isActive: true, sortOrder: 1 },
 ]
@@ -59,7 +56,7 @@ function Images() {
   const [images, setImages] = useState<SiteImage[]>([])
   const [categories, setCategories] = useState<MergedCategory[]>([])
   const [loading, setLoading] = useState(true)
-  const [activeCategory, setActiveCategory] = useState<SiteImage['category']>('hero_carousel')
+  const [activeCategory, setActiveCategory] = useState<SiteImage['category']>('logo')
   const [seeding, setSeeding] = useState(false)
   const [newName, setNewName] = useState('')
   const [newUrl, setNewUrl] = useState('')

@@ -99,7 +99,7 @@ async function apiJson(method, url, token, body) {
   return json
 }
 
-function injectCategoriesRule(source) {
+function injectRules(source, blocks) {
   // Inject before the closing brace of `match /databases/{database}/documents {`
   const openRe = /match\s*\/databases\/\{database\}\/documents\s*\{/
   const openMatch = source.match(openRe)
@@ -118,13 +118,29 @@ function injectCategoriesRule(source) {
   }
   if (depth !== 0) return null
   // i is the index of the closing '}' of the documents block
-  const block = `
-    match /categories/{categoryId} {
+  const combined = '\n' + blocks.join('\n') + '\n'
+  return source.slice(0, i) + combined + source.slice(i)
+}
+
+const RULE_BLOCKS = {
+  categories: `    match /categories/{categoryId} {
       allow read: if true;
       allow write: if request.auth != null && request.auth.token.email == 'tematgili@gmail.com';
-    }
-`
-  return source.slice(0, i) + block + source.slice(i)
+    }`,
+  gallery: `    match /gallery/{id} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.email == 'tematgili@gmail.com';
+    }`,
+  homeCarousel: `    match /homeCarousel/{id} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.email == 'tematgili@gmail.com';
+    }`,
+}
+
+const RULE_MARKERS = {
+  categories: 'match /categories/',
+  gallery: 'match /gallery/',
+  homeCarousel: 'match /homeCarousel/',
 }
 
 async function main() {
@@ -155,14 +171,19 @@ async function main() {
   console.log(currentSource)
   console.log('=== END BEFORE ===\n')
 
-  // 3. Check if categories already covered
-  if (currentSource.includes('match /categories/')) {
-    console.log('Categories rule already present. Skipping deploy.')
+  // 3. Identify which rule blocks are missing
+  const missing = Object.keys(RULE_BLOCKS).filter(
+    (key) => !currentSource.includes(RULE_MARKERS[key])
+  )
+  if (missing.length === 0) {
+    console.log('All target rules already present. Skipping deploy.')
     process.exit(0)
   }
+  console.log(`Missing rules: ${missing.join(', ')}`)
 
-  // 4. Inject categories rule
-  const newSource = injectCategoriesRule(currentSource)
+  // 4. Inject missing rule blocks
+  const blocks = missing.map((key) => RULE_BLOCKS[key])
+  const newSource = injectRules(currentSource, blocks)
   if (!newSource) {
     console.error('Could not locate `match /databases/{database}/documents { ... }` block. Aborting — please update via Console.')
     process.exit(1)
