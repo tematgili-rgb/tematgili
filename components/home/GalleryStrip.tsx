@@ -48,12 +48,12 @@ export default async function GalleryStrip() {
           </div>
         </div>
 
-        <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-5 max-w-5xl mx-auto">
           {urls.map((url, idx) => (
             <Link
               key={idx}
               href="/gallery"
-              className="relative aspect-[4/3] rounded-2xl overflow-hidden border-2 border-white shadow-sm hover:shadow-md transition-shadow bg-primary-soft/40"
+              className="relative aspect-square rounded-2xl overflow-hidden border-2 border-white shadow-sm hover:shadow-md transition-shadow bg-primary-soft/40"
             >
               <Image
                 src={url}
