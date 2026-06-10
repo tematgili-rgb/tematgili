@@ -20,7 +20,7 @@ export const EVENT_TYPES = [
 export const CONTACT_INFO = {
   phone: '052-479-6726',
   whatsapp: '972524796726',
-  email: 'info@tematgili.co.il',
+  email: 'tematgili@gmail.com',
   instagram: 'https://www.instagram.com/tematgili/',
   facebook: '',
   workingHours: 'א-ה 09:00-21:00 | ו 09:00-13:00',

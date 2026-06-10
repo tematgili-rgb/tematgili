@@ -1,7 +1,9 @@
+'use client'
+
 import Link from 'next/link'
 import { Phone, Mail, MessageCircle, Clock } from 'lucide-react'
-import { CONTACT_INFO } from '@/lib/constants'
 import LogoImage from '@/components/common/LogoImage'
+import { useResolvedSettings } from '@/hooks/useResolvedSettings'
 
 function InstagramIcon({ className }: { className?: string }) {
   return (
@@ -38,6 +40,7 @@ const LEGAL_LINKS = [
 ]
 
 export default function Footer() {
+  const settings = useResolvedSettings()
   return (
     <footer className="bg-text-dark text-white py-12">
       <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -52,9 +55,9 @@ export default function Footer() {
           </Link>
           <p className="text-sm text-white/70 mb-4">מיתוג לאירועים ומתנות</p>
           <div className="flex items-center gap-3">
-            {CONTACT_INFO.instagram && (
+            {settings.instagramUrl && (
               <a
-                href={CONTACT_INFO.instagram}
+                href={settings.instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
@@ -63,9 +66,9 @@ export default function Footer() {
                 <InstagramIcon className="h-5 w-5" />
               </a>
             )}
-            {CONTACT_INFO.facebook && (
+            {settings.facebookUrl && (
               <a
-                href={CONTACT_INFO.facebook}
+                href={settings.facebookUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
@@ -95,12 +98,12 @@ export default function Footer() {
           <ul className="space-y-2 text-sm text-white/70">
             <li className="flex items-center gap-2">
               <Phone className="h-4 w-4" />
-              <a href={`tel:${CONTACT_INFO.phone}`} className="hover:text-white">{CONTACT_INFO.phone}</a>
+              <a href={`tel:${settings.phone}`} className="hover:text-white">{settings.phone}</a>
             </li>
             <li className="flex items-center gap-2">
               <MessageCircle className="h-4 w-4" />
               <a
-                href={`https://wa.me/${CONTACT_INFO.whatsapp}`}
+                href={`https://wa.me/${settings.whatsapp}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-white"
@@ -110,11 +113,11 @@ export default function Footer() {
             </li>
             <li className="flex items-center gap-2">
               <Mail className="h-4 w-4" />
-              <a href={`mailto:${CONTACT_INFO.email}`} className="hover:text-white">{CONTACT_INFO.email}</a>
+              <a href={`mailto:${settings.email}`} className="hover:text-white">{settings.email}</a>
             </li>
             <li className="flex items-center gap-2">
               <Clock className="h-4 w-4" />
-              <span>{CONTACT_INFO.workingHours}</span>
+              <span>{settings.workingHours}</span>
             </li>
           </ul>
         </div>

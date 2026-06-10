@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import ContactEmail from '@/components/common/ContactEmail'
 
 export const metadata: Metadata = {
   title: 'הצהרת נגישות — תמתגילי',
@@ -69,7 +70,7 @@ export default function AccessibilityPage() {
             אם נתקלתם בקושי בנגישות, או יש לכם הצעות לשיפור - אנו נשמח לקבל פנייה.
           </p>
           <ul className="list-none pr-0 space-y-1 text-text-dark/85">
-            <li>אימייל לרכזת הנגישות: <a href="mailto:info@tematgili.co.il" className="text-accent hover:underline">info@tematgili.co.il</a></li>
+            <li>אימייל לרכזת הנגישות: <ContactEmail /></li>
             <li>טופס יצירת קשר באתר.</li>
             <li>זמן תגובה: עד 5 ימי עסקים.</li>
           </ul>

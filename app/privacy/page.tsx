@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import ContactEmail from '@/components/common/ContactEmail'
 
 export const metadata: Metadata = {
   title: 'מדיניות פרטיות — תמתגילי',
@@ -80,7 +81,7 @@ export default function PrivacyPage() {
             <li>להסיר עצמכם מרשימות דיוור בכל עת.</li>
           </ul>
           <p className="text-text-dark/85 leading-relaxed">
-            למימוש הזכויות יש לפנות אלינו במייל info@tematgili.co.il - נטפל בבקשתכם תוך 30 יום.
+            למימוש הזכויות יש לפנות אלינו במייל <ContactEmail /> - נטפל בבקשתכם תוך 30 יום.
           </p>
         </section>
 
@@ -89,7 +90,7 @@ export default function PrivacyPage() {
           <p className="text-text-dark/85 leading-relaxed">
             לשאלות בנושאי פרטיות:
             <br />
-            אימייל: info@tematgili.co.il
+            אימייל: <ContactEmail />
             <br />
             דרך טופס יצירת הקשר באתר.
           </p>

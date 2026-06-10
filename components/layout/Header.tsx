@@ -5,10 +5,10 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { Menu, X, Phone, MessageCircle } from 'lucide-react'
-import { CONTACT_INFO } from '@/lib/constants'
 import { trackPhoneClick, trackWhatsAppClick } from '@/lib/tracking'
 import { isAuthorizedRedirect } from '@/lib/url-validation'
 import { useSiteLogo } from '@/hooks/useSiteLogo'
+import { useResolvedSettings } from '@/hooks/useResolvedSettings'
 
 const NAV_LINKS = [
   { href: '/', label: 'בית' },
@@ -23,12 +23,13 @@ export default function Header() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const logoSrc = useSiteLogo()
+  const settings = useResolvedSettings()
 
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname?.startsWith(href)
 
-  const waUrl = `https://wa.me/${CONTACT_INFO.whatsapp}`
-  const safeWaUrl = isAuthorizedRedirect(waUrl) ? waUrl : `https://wa.me/${CONTACT_INFO.whatsapp}`
+  const waUrl = `https://wa.me/${settings.whatsapp}`
+  const safeWaUrl = isAuthorizedRedirect(waUrl) ? waUrl : `https://wa.me/${settings.whatsapp}`
 
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-primary-soft shadow-sm">
@@ -98,7 +99,7 @@ export default function Header() {
             <span className="hidden lg:inline">WhatsApp</span>
           </a>
           <a
-            href={`tel:${CONTACT_INFO.phone}`}
+            href={`tel:${settings.phone}`}
             onClick={() => trackPhoneClick('header')}
             className="inline-flex items-center gap-2 rounded-2xl border-2 border-primary text-primary px-3 h-10 text-sm font-medium hover:bg-primary-soft"
           >
