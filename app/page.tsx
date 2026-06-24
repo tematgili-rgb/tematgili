@@ -14,6 +14,10 @@ const ContactFormSection = dynamic(() => import('@/components/home/ContactFormSe
   ssr: false,
 })
 
+// Render at request time so admin edits in Firestore (categories, event
+// types, carousel, hero/CTA settings) reflect immediately without a redeploy.
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: `${SITE_NAME} — ${SITE_TAGLINE}`,
   description:
