@@ -1,7 +1,19 @@
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
 import { getActiveEventTypes } from '@/lib/db'
+import { EVENT_TYPES } from '@/lib/constants'
 import type { EventType } from '@/lib/types'
+
+// Fallback built-ins, used when Firestore is empty or unavailable.
+const BUILTIN_EVENTS: EventType[] = EVENT_TYPES.map((e, i) => ({
+  id: e.id,
+  slug: e.id,
+  name: e.name,
+  icon: e.emoji,
+  sortOrder: i,
+  isActive: true,
+  createdAt: new Date(),
+}))
 
 export default async function EventTypesSection() {
   let events: EventType[] = []
@@ -11,6 +23,7 @@ export default async function EventTypesSection() {
     events = []
   }
 
+  if (events.length === 0) events = BUILTIN_EVENTS
   if (events.length === 0) return null
 
   return (
