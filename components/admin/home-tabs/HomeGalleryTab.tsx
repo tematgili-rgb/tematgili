@@ -4,7 +4,12 @@ import { useEffect, useState } from 'react'
 import { ImagePlus, Loader2, Save, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import ImagePickerDialog from '@/components/admin/ImagePickerDialog'
-import { getSettings, updateSettings } from '@/lib/db'
+import { getSettings, updateSettings, getImagesByCategory } from '@/lib/db'
+
+const FALLBACK_IMAGES = Array.from({ length: 8 }, (_, i) => {
+  const num = String(i + 1).padStart(2, '0')
+  return `/gallery/gallery-${num}.jpg`
+})
 
 export default function HomeGalleryTab() {
   const [loading, setLoading] = useState(true)
@@ -12,19 +17,46 @@ export default function HomeGalleryTab() {
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [urls, setUrls] = useState<string[]>([])
+  const [isCustom, setIsCustom] = useState(false)
   const [pickerOpen, setPickerOpen] = useState(false)
 
   useEffect(() => {
-    getSettings()
-      .then((s) => {
-        setUrls(s?.homeGalleryImageUrls ?? [])
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false))
+    let cancelled = false
+    ;(async () => {
+      try {
+        const s = await getSettings()
+        const saved = (s?.homeGalleryImageUrls ?? []).filter(Boolean)
+        if (saved.length > 0) {
+          if (!cancelled) {
+            setUrls(saved)
+            setIsCustom(true)
+          }
+          return
+        }
+        let defaults: string[] = []
+        try {
+          const imgs = await getImagesByCategory('gallery')
+          defaults = imgs.map((i) => i.imageUrl).filter(Boolean)
+        } catch {}
+        if (defaults.length === 0) defaults = FALLBACK_IMAGES
+        if (!cancelled) {
+          setUrls(defaults.slice(0, 8))
+          setIsCustom(false)
+        }
+      } catch (e) {
+        console.error(e)
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   const removeAt = (idx: number) => {
     setUrls((prev) => prev.filter((_, i) => i !== idx))
+    setIsCustom(true)
   }
 
   const handlePick = (picked: string | string[]) => {
@@ -40,6 +72,7 @@ export default function HomeGalleryTab() {
       }
       return merged
     })
+    setIsCustom(true)
   }
 
   const handleSave = async () => {
@@ -48,6 +81,7 @@ export default function HomeGalleryTab() {
     setSaving(true)
     try {
       await updateSettings({ homeGalleryImageUrls: urls })
+      setIsCustom(true)
       setSuccess(true)
       setTimeout(() => setSuccess(false), 3000)
     } catch (e: any) {
@@ -76,6 +110,11 @@ export default function HomeGalleryTab() {
       </div>
 
       <div className="max-w-5xl space-y-6">
+        {!isCustom && urls.length > 0 && (
+          <div className="bg-cream border-2 border-twine rounded-2xl p-4 text-sm text-text-dark">
+            התמונות שמופיעות כאן הן ברירת המחדל שמוצגת כרגע באתר. הוסף או הסר ושמור כדי להגדיר רשימה משלך.
+          </div>
+        )}
         <div className="bg-white rounded-2xl shadow-lg p-6">
           {urls.length === 0 ? (
             <div className="text-center py-10 text-gray-500 text-sm">
