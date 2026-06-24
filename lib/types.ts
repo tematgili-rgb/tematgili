@@ -123,3 +123,13 @@ export interface Category {
   isBuiltIn?: boolean
   createdAt: Timestamp | Date
 }
+
+export interface EventType {
+  id: string
+  slug: string         // 'birthday' | 'baby' | ... (used in /products?event=)
+  name: string         // Hebrew display
+  icon: string         // emoji
+  sortOrder: number
+  isActive: boolean
+  createdAt: Timestamp | Date
+}

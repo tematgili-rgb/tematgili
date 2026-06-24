@@ -20,6 +20,7 @@ import {
   Loader2,
   Tag,
   Type,
+  CalendarDays,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
@@ -32,6 +33,7 @@ const navItems = [
   { icon: PackageIcon, label: 'מוצרים', href: '/admin/products' },
   { icon: Gift, label: 'חבילות', href: '/admin/packages' },
   { icon: Tag, label: 'קטגוריות', href: '/admin/categories' },
+  { icon: CalendarDays, label: 'סוגי אירועים', href: '/admin/event-types' },
   { icon: ImagesIcon, label: 'גלריית מוצרים', href: '/admin/product-gallery' },
   { icon: GalleryHorizontal, label: 'קרוסלת בית', href: '/admin/carousel' },
   { icon: ImageIcon, label: 'תמונות מערכת', href: '/admin/images' },

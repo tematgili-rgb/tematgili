@@ -135,12 +135,17 @@ const RULE_BLOCKS = {
       allow read: if true;
       allow write: if request.auth != null && request.auth.token.email == 'tematgili@gmail.com';
     }`,
+  eventTypes: `    match /eventTypes/{id} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.email == 'tematgili@gmail.com';
+    }`,
 }
 
 const RULE_MARKERS = {
   categories: 'match /categories/',
   gallery: 'match /gallery/',
   homeCarousel: 'match /homeCarousel/',
+  eventTypes: 'match /eventTypes/',
 }
 
 async function main() {

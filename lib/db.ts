@@ -30,6 +30,7 @@ import type {
   Category,
   GalleryImage,
   CarouselItem,
+  EventType,
 } from './types'
 
 export const COLLECTIONS = {
@@ -42,6 +43,7 @@ export const COLLECTIONS = {
   categories: 'categories',
   gallery: 'gallery',
   homeCarousel: 'homeCarousel',
+  eventTypes: 'eventTypes',
 } as const
 
 function ensureFirebase(): Firestore {
@@ -292,6 +294,37 @@ export async function deleteCarouselItem(id: string, imageUrl: string): Promise<
     console.warn('Storage delete skipped:', e)
   }
   await deleteDocument(COLLECTIONS.homeCarousel, id)
+}
+
+// Event types
+export async function getActiveEventTypes(): Promise<EventType[]> {
+  return queryDocuments<EventType>(
+    COLLECTIONS.eventTypes,
+    [{ field: 'isActive', op: '==', value: true }],
+    'sortOrder'
+  )
+}
+
+export async function getAllEventTypesAdmin(): Promise<EventType[]> {
+  const all = await getAllDocuments<EventType>(COLLECTIONS.eventTypes)
+  return all.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+}
+
+export async function createEventType(
+  data: Omit<EventType, 'id' | 'createdAt'>
+): Promise<string> {
+  return createDocument(COLLECTIONS.eventTypes, data)
+}
+
+export async function updateEventType(
+  id: string,
+  data: Partial<EventType>
+): Promise<void> {
+  return updateDocument<EventType>(COLLECTIONS.eventTypes, id, data)
+}
+
+export async function deleteEventType(id: string): Promise<void> {
+  return deleteDocument(COLLECTIONS.eventTypes, id)
 }
 
 export async function getSettings(): Promise<Settings | null> {
