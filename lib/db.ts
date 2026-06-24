@@ -298,11 +298,12 @@ export async function deleteCarouselItem(id: string, imageUrl: string): Promise<
 
 // Event types
 export async function getActiveEventTypes(): Promise<EventType[]> {
-  return queryDocuments<EventType>(
-    COLLECTIONS.eventTypes,
-    [{ field: 'isActive', op: '==', value: true }],
-    'sortOrder'
-  )
+  // Avoid the composite (isActive + sortOrder) index requirement: load all
+  // then filter + sort in memory. Collection is small (~10 docs).
+  const all = await getAllDocuments<EventType>(COLLECTIONS.eventTypes)
+  return all
+    .filter((e) => e.isActive)
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
 }
 
 export async function getAllEventTypesAdmin(): Promise<EventType[]> {
