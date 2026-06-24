@@ -9,10 +9,10 @@ import {
   Image as ImageIcon,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/admin/ProtectedRoute'
-import { Carousel } from '@/app/admin/carousel/page'
-import { EventTypesAdmin } from '@/app/admin/event-types/page'
-import { Categories } from '@/app/admin/categories/page'
-import { Images } from '@/app/admin/images/page'
+import Carousel from '@/components/admin/home-tabs/CarouselTab'
+import EventTypesAdmin from '@/components/admin/home-tabs/EventTypesTab'
+import Categories from '@/components/admin/home-tabs/CategoriesTab'
+import Images from '@/components/admin/home-tabs/ImagesTab'
 
 type TabId = 'carousel' | 'event-types' | 'categories' | 'images'
 
