@@ -51,7 +51,7 @@ interface DisplayCategory {
   isBuiltIn: boolean
 }
 
-function Categories() {
+export function Categories() {
   const [items, setItems] = useState<DisplayCategory[]>([])
   const [products, setProducts] = useState<Product[]>([])
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([])

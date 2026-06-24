@@ -23,7 +23,7 @@ export default function AdminCarouselPage() {
   )
 }
 
-function Carousel() {
+export function Carousel() {
   const [items, setItems] = useState<CarouselItem[]>([])
   const [loading, setLoading] = useState(true)
   const [newUrl, setNewUrl] = useState('')

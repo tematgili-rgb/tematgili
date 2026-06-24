@@ -9,18 +9,15 @@ import {
   Package as PackageIcon,
   Gift,
   Star,
-  Image as ImageIcon,
   Images as ImagesIcon,
-  GalleryHorizontal,
   Settings as SettingsIcon,
   Menu,
   X,
   LogOut,
   ExternalLink,
   Loader2,
-  Tag,
   Type,
-  CalendarDays,
+  Home,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
@@ -29,14 +26,11 @@ import { SITE_NAME } from '@/lib/constants'
 
 const navItems = [
   { icon: LayoutDashboard, label: 'דשבורד', href: '/admin' },
+  { icon: Home, label: 'עמוד הבית', href: '/admin/home' },
   { icon: Users, label: 'לידים', href: '/admin/leads' },
   { icon: PackageIcon, label: 'מוצרים', href: '/admin/products' },
   { icon: Gift, label: 'חבילות', href: '/admin/packages' },
-  { icon: Tag, label: 'קטגוריות', href: '/admin/categories' },
-  { icon: CalendarDays, label: 'סוגי אירועים', href: '/admin/event-types' },
   { icon: ImagesIcon, label: 'גלריית מוצרים', href: '/admin/product-gallery' },
-  { icon: GalleryHorizontal, label: 'קרוסלת בית', href: '/admin/carousel' },
-  { icon: ImageIcon, label: 'תמונות מערכת', href: '/admin/images' },
   { icon: Star, label: 'ביקורות', href: '/admin/reviews' },
   { icon: Type, label: 'פונטים', href: '/admin/fonts' },
   { icon: SettingsIcon, label: 'הגדרות', href: '/admin/settings' },

@@ -53,7 +53,7 @@ export default function AdminImagesPage() {
   )
 }
 
-function Images() {
+export function Images() {
   const [images, setImages] = useState<SiteImage[]>([])
   const [categories, setCategories] = useState<MergedCategory[]>([])
   const [loading, setLoading] = useState(true)

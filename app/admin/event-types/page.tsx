@@ -39,7 +39,7 @@ export default function AdminEventTypesPage() {
   )
 }
 
-function EventTypesAdmin() {
+export function EventTypesAdmin() {
   const [items, setItems] = useState<EventType[]>([])
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState<EventType | null>(null)
