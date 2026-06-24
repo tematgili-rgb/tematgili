@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import ProtectedRoute from '@/components/admin/ProtectedRoute'
-import ImageDropzone from '@/components/admin/ImageDropzone'
+import ImageSelector from '@/components/admin/ImageSelector'
 import {
   getCarouselItems,
   createCarouselItem,
@@ -162,11 +162,11 @@ export function Carousel() {
             />
           </div>
           <div>
-            <ImageDropzone
+            <ImageSelector
               label="תמונה *"
               path="carousel/img"
               currentUrl={newUrl}
-              onUpload={setNewUrl}
+              onChange={setNewUrl}
             />
           </div>
         </div>
