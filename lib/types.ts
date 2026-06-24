@@ -105,6 +105,8 @@ export interface Settings {
   ctaTitle?: string
   ctaSubtitle?: string
   ctaButtonText?: string
+  // Home gallery strip — admin-picked URLs from system gallery images
+  homeGalleryImageUrls?: string[]
 }
 
 export interface Package {

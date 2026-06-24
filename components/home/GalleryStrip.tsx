@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { getImagesByCategory } from '@/lib/db'
+import { getImagesByCategory, getSettings } from '@/lib/db'
 
 const FALLBACK_IMAGES = Array.from({ length: 8 }, (_, i) => {
   const num = String(i + 1).padStart(2, '0')
@@ -9,12 +9,26 @@ const FALLBACK_IMAGES = Array.from({ length: 8 }, (_, i) => {
 
 export default async function GalleryStrip() {
   let urls: string[] = []
+
   try {
-    const images = await getImagesByCategory('gallery')
-    urls = images.map((i) => i.imageUrl).filter(Boolean)
+    const settings = await getSettings()
+    const picked = (settings?.homeGalleryImageUrls ?? []).filter(Boolean)
+    if (picked.length > 0) {
+      urls = picked
+    }
   } catch {
-    urls = []
+    // fall through to category-based load
   }
+
+  if (urls.length === 0) {
+    try {
+      const images = await getImagesByCategory('gallery')
+      urls = images.map((i) => i.imageUrl).filter(Boolean)
+    } catch {
+      urls = []
+    }
+  }
+
   if (urls.length === 0) urls = FALLBACK_IMAGES
   urls = urls.slice(0, 8)
 

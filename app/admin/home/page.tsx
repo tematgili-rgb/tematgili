@@ -7,14 +7,16 @@ import {
   CalendarDays,
   Sparkles,
   Megaphone,
+  Images,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/admin/ProtectedRoute'
 import HeroTab from '@/components/admin/home-tabs/HeroTab'
 import Carousel from '@/components/admin/home-tabs/CarouselTab'
 import EventTypesAdmin from '@/components/admin/home-tabs/EventTypesTab'
+import HomeGalleryTab from '@/components/admin/home-tabs/HomeGalleryTab'
 import FinalCtaTab from '@/components/admin/home-tabs/FinalCtaTab'
 
-type TabId = 'hero' | 'carousel' | 'event-types' | 'cta'
+type TabId = 'hero' | 'carousel' | 'event-types' | 'home-gallery' | 'cta'
 
 const TABS: Array<{
   id: TabId
@@ -22,10 +24,11 @@ const TABS: Array<{
   icon: typeof GalleryHorizontal
   Component: () => JSX.Element
 }> = [
-  { id: 'hero',        label: 'Hero',          icon: Sparkles,          Component: HeroTab },
-  { id: 'carousel',    label: 'קרוסלת בית',   icon: GalleryHorizontal, Component: Carousel },
-  { id: 'event-types', label: 'סוגי אירועים', icon: CalendarDays,      Component: EventTypesAdmin },
-  { id: 'cta',         label: 'סיום + CTA',    icon: Megaphone,         Component: FinalCtaTab },
+  { id: 'hero',         label: 'Hero',          icon: Sparkles,          Component: HeroTab },
+  { id: 'carousel',     label: 'קרוסלת בית',   icon: GalleryHorizontal, Component: Carousel },
+  { id: 'event-types',  label: 'סוגי אירועים', icon: CalendarDays,      Component: EventTypesAdmin },
+  { id: 'home-gallery', label: 'הגלריה שלנו',  icon: Images,            Component: HomeGalleryTab },
+  { id: 'cta',          label: 'סיום + CTA',    icon: Megaphone,         Component: FinalCtaTab },
 ]
 
 function HomeAdminInner() {

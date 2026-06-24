@@ -30,10 +30,11 @@ interface Props {
   mode: Mode
   onPick: (urls: string | string[]) => void
   currentUrls?: string[]
+  defaultCategory?: 'all' | SiteImage['category']
 }
 
-export default function ImagePickerDialog({ open, onOpenChange, mode, onPick, currentUrls }: Props) {
-  const [tab, setTab] = useState<'all' | SiteImage['category']>('all')
+export default function ImagePickerDialog({ open, onOpenChange, mode, onPick, currentUrls, defaultCategory = 'all' }: Props) {
+  const [tab, setTab] = useState<'all' | SiteImage['category']>(defaultCategory)
   const [search, setSearch] = useState('')
   const [firestoreImages, setFirestoreImages] = useState<SiteImage[]>([])
   const [loading, setLoading] = useState(false)
@@ -42,12 +43,13 @@ export default function ImagePickerDialog({ open, onOpenChange, mode, onPick, cu
   useEffect(() => {
     if (!open) return
     setSelected(currentUrls ?? [])
+    setTab(defaultCategory)
     setLoading(true)
     getAllDocuments<SiteImage>('siteImages')
       .then((list) => setFirestoreImages(list))
       .catch(() => setFirestoreImages([]))
       .finally(() => setLoading(false))
-  }, [open, currentUrls])
+  }, [open, currentUrls, defaultCategory])
 
   const all = useMemo(() => {
     const fromDb = firestoreImages
