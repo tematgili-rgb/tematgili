@@ -1,5 +1,5 @@
 import ConfettiBalloons from '@/components/home/ConfettiBalloons'
-import dynamic from 'next/dynamic'
+import nextDynamic from 'next/dynamic'
 import type { Metadata } from 'next'
 import HeroSection from '@/components/home/HeroSection'
 import EventTypesSection from '@/components/home/EventTypesSection'
@@ -10,7 +10,7 @@ import TestimonialsSection from '@/components/home/TestimonialsSection'
 import FinalCTASection from '@/components/home/FinalCTASection'
 import { SITE_NAME, SITE_TAGLINE } from '@/lib/constants'
 
-const ContactFormSection = dynamic(() => import('@/components/home/ContactFormSection'), {
+const ContactFormSection = nextDynamic(() => import('@/components/home/ContactFormSection'), {
   ssr: false,
 })
 
