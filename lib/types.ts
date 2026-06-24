@@ -95,6 +95,16 @@ export interface Settings {
   workingHours?: string
   fontHeading?: FontSetting
   fontBody?: FontSetting
+  // Hero section copy
+  heroBadge?: string
+  heroTitle?: string
+  heroSubtitle?: string
+  heroCtaPrimary?: string
+  heroCtaSecondary?: string
+  // Final CTA section copy
+  ctaTitle?: string
+  ctaSubtitle?: string
+  ctaButtonText?: string
 }
 
 export interface Package {

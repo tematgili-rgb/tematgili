@@ -1,10 +1,28 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { SITE_NAME, SITE_TAGLINE } from '@/lib/constants'
+import { SITE_NAME } from '@/lib/constants'
+import { getResolvedSettings } from '@/lib/settings'
 import HeroCarousel3D from './HeroCarousel3D'
 
-export default function HeroSection() {
+const HIGHLIGHT_WORD = 'למיוחד'
+
+function renderSubtitle(subtitle: string) {
+  const idx = subtitle.indexOf(HIGHLIGHT_WORD)
+  if (idx === -1) return subtitle
+  return (
+    <>
+      {subtitle.slice(0, idx)}
+      <span className="font-display text-primary text-2xl md:text-3xl [-webkit-text-stroke:5px_white] [paint-order:stroke_fill]">
+        {HIGHLIGHT_WORD}
+      </span>
+      {subtitle.slice(idx + HIGHLIGHT_WORD.length)}
+    </>
+  )
+}
+
+export default async function HeroSection() {
+  const s = await getResolvedSettings()
   return (
     <section className="relative bg-white bg-gradient-to-bl from-primary-soft/40 to-cream/40 overflow-hidden">
       <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
@@ -60,7 +78,7 @@ export default function HeroSection() {
                 <span className="absolute inline-flex h-full w-full rounded-full bg-accent opacity-75 animate-ping" />
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 md:h-2 md:w-2 bg-accent" />
               </span>
-              מיתוג אישי לכל אירוע ✨
+              {s.heroBadge}
             </div>
             <h1 className="leading-tight text-text-dark">
               <span className="sr-only">{SITE_NAME}</span>
@@ -73,21 +91,18 @@ export default function HeroSection() {
                 className="hidden mx-auto lg:mx-0 lg:me-auto lg:block h-24 md:h-28 lg:h-32 w-auto [filter:drop-shadow(0_0_18px_rgba(255,235,240,0.95))_drop-shadow(0_0_42px_rgba(244,168,184,0.55))]"
               />
               <span className="block text-primary mt-3 text-4xl md:text-5xl lg:text-6xl whitespace-nowrap font-black text-center lg:text-right [-webkit-text-stroke:5px_white] [paint-order:stroke_fill]">
-                {SITE_TAGLINE}
+                {s.heroTitle}
               </span>
             </h1>
             <p className="text-lg md:text-xl text-text-dark/80 max-w-xl mx-auto lg:mx-0">
-              חוברות צביעה, עטיפות שוקולד, קופסאות פופקורן ועוד — כל מה שהופך את האירוע שלכם
-              {' '}
-              <span className="font-display text-primary text-2xl md:text-3xl [-webkit-text-stroke:5px_white] [paint-order:stroke_fill]">למיוחד</span>
-              , מודפס בהתאמה אישית.
+              {renderSubtitle(s.heroSubtitle)}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
               <Button asChild size="lg" className="bg-primary text-white font-bold hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] transition-transform h-14 text-base shadow-lg shadow-primary/40">
-                <Link href="/products">ראו את המוצרים</Link>
+                <Link href="/products">{s.heroCtaPrimary}</Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="h-14 text-base hover:scale-[1.02] active:scale-[0.98] transition-transform">
-                <Link href="/packages">חבילות מוכנות</Link>
+                <Link href="/packages">{s.heroCtaSecondary}</Link>
               </Button>
             </div>
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2 pt-2 text-sm text-text-dark/70">

@@ -10,6 +10,16 @@ export interface ResolvedSettings {
   tiktokUrl: string
   address: string
   workingHours: string
+  // Hero copy
+  heroBadge: string
+  heroTitle: string
+  heroSubtitle: string
+  heroCtaPrimary: string
+  heroCtaSecondary: string
+  // Final CTA copy
+  ctaTitle: string
+  ctaSubtitle: string
+  ctaButtonText: string
 }
 
 export const DEFAULT_RESOLVED_SETTINGS: ResolvedSettings = {
@@ -21,6 +31,15 @@ export const DEFAULT_RESOLVED_SETTINGS: ResolvedSettings = {
   tiktokUrl: '',
   address: '',
   workingHours: CONTACT_INFO.workingHours,
+  heroBadge: 'מיתוג אישי לכל אירוע ✨',
+  heroTitle: 'מיתוג לאירועים ומתנות',
+  heroSubtitle:
+    'חוברות צביעה, עטיפות שוקולד, קופסאות פופקורן ועוד — כל מה שהופך את האירוע שלכם למיוחד, מודפס בהתאמה אישית.',
+  heroCtaPrimary: 'ראו את המוצרים',
+  heroCtaSecondary: 'חבילות מוכנות',
+  ctaTitle: 'מוכנים להפוך את האירוע שלכם למיוחד?',
+  ctaSubtitle: 'דברו איתנו ב-WhatsApp ונכין לכם הצעה מותאמת אישית',
+  ctaButtonText: 'לכתוב לנו ב-WhatsApp',
 }
 
 function pick(value: string | undefined | null, fallback: string): string {
@@ -41,6 +60,14 @@ export async function getResolvedSettings(): Promise<ResolvedSettings> {
       tiktokUrl: pick(s.tiktokUrl, DEFAULT_RESOLVED_SETTINGS.tiktokUrl),
       address: pick(s.address, DEFAULT_RESOLVED_SETTINGS.address),
       workingHours: pick(s.workingHours, DEFAULT_RESOLVED_SETTINGS.workingHours),
+      heroBadge: pick(s.heroBadge, DEFAULT_RESOLVED_SETTINGS.heroBadge),
+      heroTitle: pick(s.heroTitle, DEFAULT_RESOLVED_SETTINGS.heroTitle),
+      heroSubtitle: pick(s.heroSubtitle, DEFAULT_RESOLVED_SETTINGS.heroSubtitle),
+      heroCtaPrimary: pick(s.heroCtaPrimary, DEFAULT_RESOLVED_SETTINGS.heroCtaPrimary),
+      heroCtaSecondary: pick(s.heroCtaSecondary, DEFAULT_RESOLVED_SETTINGS.heroCtaSecondary),
+      ctaTitle: pick(s.ctaTitle, DEFAULT_RESOLVED_SETTINGS.ctaTitle),
+      ctaSubtitle: pick(s.ctaSubtitle, DEFAULT_RESOLVED_SETTINGS.ctaSubtitle),
+      ctaButtonText: pick(s.ctaButtonText, DEFAULT_RESOLVED_SETTINGS.ctaButtonText),
     }
   } catch {
     return DEFAULT_RESOLVED_SETTINGS

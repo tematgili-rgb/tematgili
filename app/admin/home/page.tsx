@@ -7,14 +7,27 @@ import {
   CalendarDays,
   Tag,
   Image as ImageIcon,
+  Sparkles,
+  Gift,
+  Megaphone,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/admin/ProtectedRoute'
+import HeroTab from '@/components/admin/home-tabs/HeroTab'
 import Carousel from '@/components/admin/home-tabs/CarouselTab'
 import EventTypesAdmin from '@/components/admin/home-tabs/EventTypesTab'
 import Categories from '@/components/admin/home-tabs/CategoriesTab'
+import PackagesTab from '@/components/admin/home-tabs/PackagesTab'
 import Images from '@/components/admin/home-tabs/ImagesTab'
+import FinalCtaTab from '@/components/admin/home-tabs/FinalCtaTab'
 
-type TabId = 'carousel' | 'event-types' | 'categories' | 'images'
+type TabId =
+  | 'hero'
+  | 'carousel'
+  | 'event-types'
+  | 'categories'
+  | 'packages'
+  | 'images'
+  | 'cta'
 
 const TABS: Array<{
   id: TabId
@@ -22,18 +35,21 @@ const TABS: Array<{
   icon: typeof GalleryHorizontal
   Component: () => JSX.Element
 }> = [
+  { id: 'hero',        label: 'Hero',          icon: Sparkles,          Component: HeroTab },
   { id: 'carousel',    label: 'קרוסלת בית',   icon: GalleryHorizontal, Component: Carousel },
   { id: 'event-types', label: 'סוגי אירועים', icon: CalendarDays,      Component: EventTypesAdmin },
   { id: 'categories',  label: 'קטגוריות',     icon: Tag,               Component: Categories },
+  { id: 'packages',    label: 'חבילות',        icon: Gift,              Component: PackagesTab },
   { id: 'images',      label: 'תמונות מערכת', icon: ImageIcon,         Component: Images },
+  { id: 'cta',         label: 'סיום + CTA',    icon: Megaphone,         Component: FinalCtaTab },
 ]
 
 function HomeAdminInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const tabParam = (searchParams.get('tab') as TabId) || 'carousel'
+  const tabParam = (searchParams.get('tab') as TabId) || 'hero'
   const active = useMemo(
-    () => (TABS.some((t) => t.id === tabParam) ? tabParam : 'carousel'),
+    () => (TABS.some((t) => t.id === tabParam) ? tabParam : 'hero'),
     [tabParam]
   )
 
